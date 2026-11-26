@@ -26,7 +26,7 @@ const INTERNAL_ERROR: ApiError = {
 
 const codeForStatus = (statusCode: HttpStatus): ApiErrorCode => {
   if (statusCode >= HttpStatus.INTERNAL_SERVER_ERROR) return 'INTERNAL'
-  return API_ERROR_CODES_BY_STATUS[statusCode] ?? 'VALIDATION_FAILED'
+  return API_ERROR_CODES_BY_STATUS[statusCode] ?? 'BAD_REQUEST'
 }
 
 const messageOf = (exception: HttpException): string => {
@@ -40,14 +40,12 @@ const messageOf = (exception: HttpException): string => {
 
 const fromHttpException = (exception: HttpException): ApiError => {
   const statusCode = exception.getStatus()
-  const apiError: ApiError = {
-    statusCode,
-    code: codeForStatus(statusCode),
-    message: messageOf(exception),
+  const message = messageOf(exception)
+  if (exception instanceof ValidationFailedException) {
+    return { statusCode, code: 'VALIDATION_FAILED', message, issues: exception.issues }
   }
-  if (exception instanceof ValidationFailedException) apiError.issues = exception.issues
 
-  return apiError
+  return { statusCode, code: codeForStatus(statusCode), message }
 }
 
 @Catch()

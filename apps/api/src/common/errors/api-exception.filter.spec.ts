@@ -1,4 +1,10 @@
-import { type ArgumentsHost, Logger, NotFoundException } from '@nestjs/common'
+import {
+  type ArgumentsHost,
+  BadRequestException,
+  Logger,
+  NotFoundException,
+  PayloadTooLargeException,
+} from '@nestjs/common'
 import type { HttpAdapterHost } from '@nestjs/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -56,6 +62,21 @@ describe('ApiExceptionFilter', () => {
       message: 'Validation failed',
       issues,
     })
+  })
+
+  it('marks a 4xx that is not a validation failure as BAD_REQUEST', () => {
+    const reply = catchWithFilter(new PayloadTooLargeException())
+
+    expect(reply).toEqual({
+      statusCode: 413,
+      body: { statusCode: 413, code: 'BAD_REQUEST', message: 'Payload Too Large' },
+    })
+  })
+
+  it('marks a plain 400 as BAD_REQUEST, not VALIDATION_FAILED', () => {
+    const reply = catchWithFilter(new BadRequestException('Task 3 is done'))
+
+    expect(reply.body.code).toBe('BAD_REQUEST')
   })
 
   it('hides an unknown error behind 500 INTERNAL and logs it', () => {

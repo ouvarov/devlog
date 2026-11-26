@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -27,7 +26,10 @@ import {
   UpdateTaskSchema,
 } from '@devlog/shared'
 
+import { createParseIdPipe } from '../common/validation/parse-id.pipe.js'
 import { TasksService } from './tasks.service.js'
+
+const PARSE_ID_PIPE = createParseIdPipe()
 
 @Controller('tasks')
 export class TasksController {
@@ -45,7 +47,7 @@ export class TasksController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<TaskDetail> {
+  findOne(@Param('id', PARSE_ID_PIPE) id: number): Promise<TaskDetail> {
     return this.tasksService.findOne(id)
   }
 
@@ -56,7 +58,7 @@ export class TasksController {
 
   @Patch(':id')
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', PARSE_ID_PIPE) id: number,
     @Body({ schema: UpdateTaskSchema }) changes: UpdateTask,
   ): Promise<TaskView> {
     return this.tasksService.update(id, changes)
@@ -64,7 +66,7 @@ export class TasksController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  remove(@Param('id', PARSE_ID_PIPE) id: number): Promise<void> {
     return this.tasksService.remove(id)
   }
 }

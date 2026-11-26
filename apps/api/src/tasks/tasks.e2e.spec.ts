@@ -29,6 +29,7 @@ import { tasks } from '../db/schema/index.js'
 const PARALLEL_BATCH_SIZE = 10
 const MISSING_TASK_ID = 999_999
 const OUT_OF_INT32_RANGE_ID = 99_999_999_999
+const OVER_BODY_LIMIT_CHARS = 300 * 1024
 
 const createApp = async (): Promise<NestExpressApplication> => {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
@@ -194,7 +195,10 @@ describe('TasksController (e2e)', () => {
     it('returns 400 for a non-numeric id', async () => {
       const response = await api().get('/tasks/abc').expect(400)
 
-      expect(parseError(response.body).code).toBe('VALIDATION_FAILED')
+      expect(parseError(response.body)).toMatchObject({
+        code: 'VALIDATION_FAILED',
+        issues: [{ path: ['id'], message: 'Expected an integer id' }],
+      })
     })
 
     it('returns 400 for an id outside the integer range', async () => {
@@ -243,7 +247,7 @@ describe('TasksController (e2e)', () => {
         .send('{"title":')
         .expect(400)
 
-      expect(parseError(response.body).code).toBe('VALIDATION_FAILED')
+      expect(parseError(response.body).code).toBe('BAD_REQUEST')
     })
 
     it('rejects a subtask as parent', async () => {
@@ -255,7 +259,7 @@ describe('TasksController (e2e)', () => {
         .send({ title: 'Nested', parentId: subtask.id })
         .expect(400)
 
-      expect(parseError(response.body).code).toBe('VALIDATION_FAILED')
+      expect(parseError(response.body).code).toBe('BAD_REQUEST')
     })
 
     it('returns 404 for a missing parent', async () => {
@@ -441,6 +445,15 @@ describe('TasksController (e2e)', () => {
       const response = await api().post('/tasks/batch').send({ create, update: [] }).expect(200)
 
       expect(BatchTasksResultSchema.parse(response.body).created).toHaveLength(MAX_BATCH_OPERATIONS)
+    })
+
+    it('rejects a body over the JSON limit as 413 BAD_REQUEST', async () => {
+      const response = await api()
+        .post('/tasks/batch')
+        .send({ create: [{ title: 'Big', description: 'x'.repeat(OVER_BODY_LIMIT_CHARS) }] })
+        .expect(413)
+
+      expect(parseError(response.body).code).toBe('BAD_REQUEST')
     })
 
     it('rejects an empty batch', async () => {

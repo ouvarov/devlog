@@ -1,6 +1,12 @@
 import { z } from 'zod'
 
-const API_ERROR_CODES = ['VALIDATION_FAILED', 'NOT_FOUND', 'CONFLICT', 'INTERNAL'] as const
+const API_ERROR_CODES = [
+  'VALIDATION_FAILED',
+  'BAD_REQUEST',
+  'NOT_FOUND',
+  'CONFLICT',
+  'INTERNAL',
+] as const
 
 const ApiErrorCodeSchema = z.enum(API_ERROR_CODES)
 
