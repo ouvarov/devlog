@@ -19,6 +19,15 @@ describe('validateEnv', () => {
     expect(env.GEMINI_MODEL).toBe('gemini-3.5-flash-lite')
   })
 
+  it('normalizes WEB_ORIGIN to a bare origin for CORS', () => {
+    expect(validateEnv({ WEB_ORIGIN: 'http://localhost:3000/' }).WEB_ORIGIN).toBe(
+      'http://localhost:3000',
+    )
+    expect(validateEnv({ WEB_ORIGIN: 'https://devlog.example.com/app' }).WEB_ORIGIN).toBe(
+      'https://devlog.example.com',
+    )
+  })
+
   it('refuses LLM_PROVIDER=google without GOOGLE_GENERATIVE_AI_API_KEY', () => {
     expect(() => validateEnv({ LLM_PROVIDER: 'google' })).toThrow(/GOOGLE_GENERATIVE_AI_API_KEY/)
   })

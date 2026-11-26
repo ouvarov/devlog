@@ -9,7 +9,10 @@ const LLM_PROVIDERS = ['google', 'mock'] as const
 const envSchema = z
   .object({
     PORT: z.coerce.number().int().positive().default(DEFAULT_PORT),
-    WEB_ORIGIN: z.url().default(DEFAULT_WEB_ORIGIN),
+    WEB_ORIGIN: z
+      .url()
+      .transform((value) => new URL(value).origin)
+      .default(DEFAULT_WEB_ORIGIN),
     LLM_PROVIDER: z.enum(LLM_PROVIDERS).optional(),
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
     GEMINI_MODEL: z.string().default(DEFAULT_GEMINI_MODEL),
