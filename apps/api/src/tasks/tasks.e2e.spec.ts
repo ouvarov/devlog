@@ -1,9 +1,8 @@
 import { PGlite } from '@electric-sql/pglite'
-import type { INestApplication } from '@nestjs/common'
+import type { NestExpressApplication } from '@nestjs/platform-express'
 import { Test } from '@nestjs/testing'
 import { count, sql } from 'drizzle-orm'
 import request from 'supertest'
-import type { App } from 'supertest/types.js'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import {
@@ -11,6 +10,8 @@ import {
   type BatchTasksResult,
   BatchTasksResultSchema,
   type CreateTask,
+  MAX_BATCH_OPERATIONS,
+  TASK_DESCRIPTION_MAX_LENGTH,
   type TaskDetail,
   TaskDetailSchema,
   type TaskListResponse,
@@ -20,6 +21,7 @@ import {
 } from '@devlog/shared'
 
 import { AppModule } from '../app.module.js'
+import { configureHttp } from '../app.setup.js'
 import type { Database } from '../db/database.js'
 import { DRIZZLE, PGLITE } from '../db/db.tokens.js'
 import { tasks } from '../db/schema/index.js'
@@ -28,13 +30,14 @@ const PARALLEL_BATCH_SIZE = 10
 const MISSING_TASK_ID = 999_999
 const OUT_OF_INT32_RANGE_ID = 99_999_999_999
 
-const createApp = async (): Promise<INestApplication<App>> => {
+const createApp = async (): Promise<NestExpressApplication> => {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(PGLITE)
     .useFactory({ factory: () => PGlite.create('memory://') })
     .compile()
 
-  const app = moduleRef.createNestApplication<INestApplication<App>>({ logger: false })
+  const app = moduleRef.createNestApplication<NestExpressApplication>({ logger: false })
+  configureHttp(app)
   return app.init()
 }
 
@@ -42,7 +45,7 @@ const createTasksInput = (prefix: string, total: number): CreateTask[] =>
   Array.from({ length: total }, (_, index) => ({ title: `${prefix} ${index + 1}` }))
 
 describe('TasksController (e2e)', () => {
-  let app: INestApplication<App>
+  let app: NestExpressApplication
   let db: Database
 
   const api = () => request(app.getHttpServer())
@@ -427,6 +430,17 @@ describe('TasksController (e2e)', () => {
         .expect(404)
 
       expect(await countTasks()).toBe(0)
+    })
+
+    it('accepts the largest batch the schema allows with Cyrillic descriptions', async () => {
+      const create = Array.from({ length: MAX_BATCH_OPERATIONS }, (_, index) => ({
+        title: `Задача ${index + 1}`,
+        description: 'ж'.repeat(TASK_DESCRIPTION_MAX_LENGTH),
+      }))
+
+      const response = await api().post('/tasks/batch').send({ create, update: [] }).expect(200)
+
+      expect(BatchTasksResultSchema.parse(response.body).created).toHaveLength(MAX_BATCH_OPERATIONS)
     })
 
     it('rejects an empty batch', async () => {
