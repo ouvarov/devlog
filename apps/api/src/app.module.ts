@@ -9,6 +9,7 @@ import { createSchemaValidationPipe } from './common/validation/schema-validatio
 import { validateEnv } from './config/env.schema.js'
 import { DbModule } from './db/db.module.js'
 import { HealthModule } from './health/health.module.js'
+import { TasksModule } from './tasks/tasks.module.js'
 
 const ROOT_ENV_FILE_PATH = fileURLToPath(new URL('../../../.env', import.meta.url))
 
@@ -21,6 +22,7 @@ const ROOT_ENV_FILE_PATH = fileURLToPath(new URL('../../../.env', import.meta.ur
     }),
     DbModule,
     HealthModule,
+    TasksModule,
   ],
   providers: [
     { provide: APP_PIPE, useFactory: createSchemaValidationPipe },
