@@ -15,10 +15,15 @@ import { ApiExceptionFilter } from './api-exception.filter.js'
 
 type Reply = { body: ApiError; statusCode: number }
 
+type FakeRequest = { method: string; originalUrl: string }
+
 const RESPONSE = { name: 'response' }
+const REQUEST: FakeRequest = { method: 'POST', originalUrl: '/tasks/batch' }
 
 const hostWithResponse = (): ArgumentsHost =>
-  ({ switchToHttp: () => ({ getResponse: () => RESPONSE }) }) as unknown as ArgumentsHost
+  ({
+    switchToHttp: () => ({ getResponse: () => RESPONSE, getRequest: () => REQUEST }),
+  }) as unknown as ArgumentsHost
 
 const catchWithFilter = (exception: unknown): Reply => {
   const replies: Reply[] = []
@@ -27,6 +32,8 @@ const catchWithFilter = (exception: unknown): Reply => {
       reply: (_response: unknown, body: ApiError, statusCode: number) => {
         replies.push({ body, statusCode })
       },
+      getRequestMethod: (request: FakeRequest) => request.method,
+      getRequestUrl: (request: FakeRequest) => request.originalUrl,
     },
   } as unknown as HttpAdapterHost
 
@@ -88,6 +95,9 @@ describe('ApiExceptionFilter', () => {
       statusCode: 500,
       body: { statusCode: 500, code: 'INTERNAL', message: 'Internal server error' },
     })
-    expect(logError).toHaveBeenCalledWith(expect.stringContaining('connection lost'))
+    expect(logError).toHaveBeenCalledWith(
+      'POST /tasks/batch failed',
+      expect.stringContaining('connection lost'),
+    )
   })
 })

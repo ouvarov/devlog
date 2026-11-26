@@ -55,19 +55,28 @@ export class ApiExceptionFilter implements ExceptionFilter {
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
-    const apiError = this.toApiError(exception)
-    const { httpAdapter } = this.httpAdapterHost
+    const httpContext = host.switchToHttp()
+    const apiError = this.toApiError(exception, httpContext.getRequest())
 
-    httpAdapter.reply(host.switchToHttp().getResponse(), apiError, apiError.statusCode)
+    this.httpAdapterHost.httpAdapter.reply(httpContext.getResponse(), apiError, apiError.statusCode)
   }
 
-  private toApiError(exception: unknown): ApiError {
+  private toApiError(exception: unknown, request: unknown): ApiError {
     if (exception instanceof HttpException) return fromHttpException(exception)
 
     const postgresError = mapPostgresError(exception)
     if (postgresError) return postgresError
 
-    this.logger.error(exception instanceof Error ? exception.stack : String(exception))
+    this.logUnexpectedError(exception, request)
     return INTERNAL_ERROR
+  }
+
+  private logUnexpectedError(exception: unknown, request: unknown): void {
+    const { httpAdapter } = this.httpAdapterHost
+    const method = String(httpAdapter.getRequestMethod(request))
+    const url = String(httpAdapter.getRequestUrl(request))
+    const stack = exception instanceof Error ? exception.stack : String(exception)
+
+    this.logger.error(`${method} ${url} failed`, stack)
   }
 }
