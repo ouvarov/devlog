@@ -30,6 +30,7 @@ const PARALLEL_BATCH_SIZE = 10
 const MISSING_TASK_ID = 999_999
 const OUT_OF_INT32_RANGE_ID = 99_999_999_999
 const OVER_BODY_LIMIT_CHARS = 300 * 1024
+const MAX_LIST_SIZE = 500
 
 const createApp = async (): Promise<NestExpressApplication> => {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
@@ -143,6 +144,14 @@ describe('TasksController (e2e)', () => {
         subtaskCount: 0,
         subtaskDoneCount: 0,
       })
+    })
+
+    it('caps the list at 500 tasks', async () => {
+      await db
+        .insert(tasks)
+        .values(Array.from({ length: MAX_LIST_SIZE + 1 }, (_, index) => ({ title: `T${index}` })))
+
+      expect(await listTasks('')).toHaveLength(MAX_LIST_SIZE)
     })
 
     it('rejects an unknown query parameter', async () => {
