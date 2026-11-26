@@ -1,0 +1,22 @@
+@use 'tokens' as *;
+
+:root {
+  @each $name, $value in $colors {
+    --color-#{$name}: #{$value};
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  @include font-size('body');
+
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  color: color('text');
+  background: color('background');
+}

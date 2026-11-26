@@ -1,0 +1,17 @@
+@use 'tokens' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-4;
+  align-items: flex-start;
+  max-width: $page-max-width;
+  margin: 0 auto;
+  padding: $indent-16 $indent-6;
+}
+
+.title {
+  @include font-size('title');
+
+  margin: 0;
+}
