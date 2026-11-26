@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm'
+import { type SQL, sql } from 'drizzle-orm'
 import {
   type AnyPgColumn,
   check,
@@ -10,6 +10,12 @@ import {
 } from 'drizzle-orm/pg-core'
 
 import { TASK_PRIORITIES, TASK_STATUSES } from '@devlog/shared'
+
+const quoteSqlLiteral = (value: string): string => `'${value.replaceAll("'", "''")}'`
+
+// DDL cannot take bound parameters, so the compile-time constants are inlined as quoted literals.
+const toSqlLiteralList = (values: readonly string[]): SQL =>
+  sql.raw(values.map(quoteSqlLiteral).join(', '))
 
 const tasks = pgTable(
   'tasks',
@@ -29,8 +35,8 @@ const tasks = pgTable(
   (table) => [
     index('tasks_parent_id_idx').on(table.parentId),
     index('tasks_status_created_at_idx').on(table.status, table.createdAt.desc()),
-    check('tasks_status_check', sql`${table.status} in ('todo', 'in-progress', 'done')`),
-    check('tasks_priority_check', sql`${table.priority} in ('low', 'medium', 'high')`),
+    check('tasks_status_check', sql`${table.status} in (${toSqlLiteralList(TASK_STATUSES)})`),
+    check('tasks_priority_check', sql`${table.priority} in (${toSqlLiteralList(TASK_PRIORITIES)})`),
   ],
 )
 
