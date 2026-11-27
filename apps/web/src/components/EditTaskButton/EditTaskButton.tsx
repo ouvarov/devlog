@@ -26,15 +26,22 @@ const EditTaskButton: FC<EditTaskButtonProps> = ({
   status,
   priority,
 }) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [openedValues, setOpenedValues] = useState<TaskFormValues | null>(null)
   const { mutateAsync: updateTask } = useUpdateTask()
   const confirmation = useConfirmation()
 
-  const initialValues: TaskFormValues = { title, description, status, priority }
+  const handleOpen = () => setOpenedValues({ title, description, status, priority })
+  const handleClose = () => setOpenedValues(null)
 
   const handleSubmit = async (values: TaskFormValues) => {
-    const changes = toUpdateTaskChanges(initialValues, values)
+    if (!openedValues) return null
+
+    const changes = toUpdateTaskChanges(openedValues, values)
     if (!changes.success) return changes.errors
+    if (!changes.data) {
+      handleClose()
+      return null
+    }
 
     const isConfirmed =
       !needsDoneConfirmation(changes.data.status, openSubtaskCount) ||
@@ -43,7 +50,7 @@ const EditTaskButton: FC<EditTaskButtonProps> = ({
 
     try {
       await updateTask({ id: taskId, changes: changes.data })
-      setIsOpen(false)
+      handleClose()
       return null
     } catch (error) {
       return getSubmitErrors(error)
@@ -52,14 +59,16 @@ const EditTaskButton: FC<EditTaskButtonProps> = ({
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)}>Edit</Button>
-      <Dialog isOpen={isOpen} heading="Edit task" onClose={() => setIsOpen(false)}>
-        <TaskForm
-          initialValues={initialValues}
-          submitLabel="Save"
-          onSubmit={handleSubmit}
-          onCancel={() => setIsOpen(false)}
-        />
+      <Button onClick={handleOpen}>Edit</Button>
+      <Dialog isOpen={openedValues !== null} heading="Edit task" onClose={handleClose}>
+        {openedValues && (
+          <TaskForm
+            initialValues={openedValues}
+            submitLabel="Save"
+            onSubmit={handleSubmit}
+            onCancel={handleClose}
+          />
+        )}
       </Dialog>
       <ConfirmDialog
         isOpen={confirmation.isOpen}

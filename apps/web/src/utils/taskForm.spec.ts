@@ -103,14 +103,21 @@ describe('toUpdateTaskChanges', () => {
     expect(result).toEqual({ success: true, data: { priority: 'high' } })
   })
 
-  it('asks for a change when nothing changed', () => {
+  it('returns no changes when nothing changed', () => {
     const initialValues = createFormValues()
 
-    const result = toUpdateTaskChanges(initialValues, initialValues)
+    expect(toUpdateTaskChanges(initialValues, initialValues)).toEqual({ success: true, data: null })
+  })
 
-    expect(result).toEqual({
-      success: false,
-      errors: { fields: {}, message: 'At least one field must be changed' },
+  it('treats whitespace around the title and description as no change', () => {
+    const initialValues = createFormValues({ description: 'Notes' })
+
+    const result = toUpdateTaskChanges(initialValues, {
+      ...initialValues,
+      title: '  Write docs ',
+      description: 'Notes\n',
     })
+
+    expect(result).toEqual({ success: true, data: null })
   })
 })

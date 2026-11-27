@@ -75,13 +75,13 @@ const toCreateTaskInput = (
 const toUpdateTaskChanges = (
   initialValues: TaskFormValues,
   values: TaskFormValues,
-): TaskFormResult<UpdateTask> => {
-  const changes = Object.fromEntries(
-    TASK_FORM_FIELDS.filter((field) => values[field] !== initialValues[field]).map((field) => [
-      field,
-      values[field],
-    ]),
+): TaskFormResult<UpdateTask | null> => {
+  const changedFields = TASK_FORM_FIELDS.filter(
+    (field) => values[field].trim() !== initialValues[field].trim(),
   )
+  if (changedFields.length === 0) return { success: true, data: null }
+
+  const changes = Object.fromEntries(changedFields.map((field) => [field, values[field]]))
   const parsed = UpdateTaskSchema.safeParse(changes)
   if (parsed.success) return { success: true, data: parsed.data }
   return { success: false, errors: toFormErrors(parsed.error.issues) }
