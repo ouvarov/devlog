@@ -1,0 +1,15 @@
+@use 'tokens' as *;
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: color('surface');
+  border: 1px solid color('border');
+  border-radius: $radius-card;
+}
+
+.note {
+  margin: 0;
+  color: color('text-muted');
+}

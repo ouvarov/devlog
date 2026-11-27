@@ -1,14 +1,23 @@
-import type { FC } from 'react'
+import { type FC, Suspense } from 'react'
 
-import { ApiStatus } from '@/components/ApiStatus/ApiStatus'
+import { TaskBoard } from '@/components/TaskBoard/TaskBoard'
 
 import styles from './page.module.scss'
 
 const HomePage: FC = () => (
-  <main className={styles.page}>
-    <h1 className={styles.title}>DevLog</h1>
-    <ApiStatus />
-  </main>
+  <div className={styles.page}>
+    <main className={styles.main}>
+      <Suspense fallback={<p className={styles.note}>Loading tasks…</p>}>
+        <TaskBoard />
+      </Suspense>
+    </main>
+    <aside className={styles.agents} aria-labelledby="agents-heading">
+      <h2 id="agents-heading" className={styles.agentsTitle}>
+        Agents
+      </h2>
+      <p className={styles.note}>Agent panels will appear here.</p>
+    </aside>
+  </div>
 )
 
 export default HomePage

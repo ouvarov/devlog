@@ -1,0 +1,24 @@
+@use 'tokens' as *;
+
+.filters {
+  display: flex;
+  gap: $indent-4;
+}
+
+.filter {
+  @include font-size('small');
+
+  display: flex;
+  gap: $indent-2;
+  align-items: center;
+  color: color('text-muted');
+}
+
+.select {
+  padding: $indent-1 $indent-2;
+  font: inherit;
+  color: color('text');
+  background: color('surface');
+  border: 1px solid color('border');
+  border-radius: $radius-control;
+}

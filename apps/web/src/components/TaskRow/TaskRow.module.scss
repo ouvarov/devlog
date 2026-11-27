@@ -1,0 +1,80 @@
+@use 'tokens' as *;
+
+$toggle-size: $indent-6;
+
+.row {
+  border-top: 1px solid color('border');
+
+  &:first-child {
+    border-top: none;
+  }
+}
+
+.main {
+  display: flex;
+  gap: $indent-3;
+  align-items: center;
+  padding: $indent-3 $indent-4;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: $toggle-size;
+  height: $toggle-size;
+  padding: 0;
+  color: color('text-muted');
+  background: transparent;
+  border: none;
+  border-radius: $radius-control;
+  cursor: pointer;
+
+  &:hover {
+    background: color('surface-muted');
+  }
+}
+
+.toggleSpace {
+  flex-shrink: 0;
+  width: $toggle-size;
+}
+
+.chevron {
+  transition: rotate 0.15s ease;
+}
+
+.chevronOpen {
+  composes: chevron;
+  rotate: 90deg;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: color('text');
+  text-decoration: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.key,
+.counter {
+  @include font-size('small');
+
+  color: color('text-muted');
+}
+
+.counter {
+  font-variant-numeric: tabular-nums;
+}
+
+.subtasks {
+  padding-left: $indent-16;
+  background: color('surface-muted');
+}

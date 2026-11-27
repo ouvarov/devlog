@@ -1,0 +1,5 @@
+@use 'tokens' as *;
+
+.page {
+  max-width: $page-max-width - $agents-width;
+}

@@ -1,0 +1,13 @@
+@use 'tokens' as *;
+
+.badge {
+  @include font-size('small');
+
+  display: inline-block;
+  padding: 0 $indent-2;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+  border-radius: $radius-pill;
+}
+
+@include tone-classes;

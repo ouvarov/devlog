@@ -1,0 +1,41 @@
+@use 'tokens' as *;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  gap: $indent-3;
+  align-items: center;
+  padding: $indent-2 $indent-4;
+  border-top: 1px solid color('border');
+}
+
+.title {
+  flex: 1;
+  color: color('text');
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.key {
+  @include font-size('small');
+
+  color: color('text-muted');
+}
+
+.note {
+  @include font-size('small');
+
+  margin: 0;
+  padding: $indent-2 $indent-4;
+  color: color('text-muted');
+}

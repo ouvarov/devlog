@@ -1,0 +1,46 @@
+@use 'tokens' as *;
+
+.button {
+  @include font-size('body');
+
+  display: inline-flex;
+  gap: $indent-2;
+  align-items: center;
+  padding: $indent-2 $indent-4;
+  font: inherit;
+  border: 1px solid transparent;
+  border-radius: $radius-control;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid color('accent');
+    outline-offset: 2px;
+  }
+}
+
+.primary {
+  color: color('accent-text');
+  background: color('accent');
+}
+
+.secondary {
+  color: color('text');
+  background: color('surface');
+  border-color: color('border');
+}
+
+.danger {
+  color: color('accent-text');
+  background: color('danger');
+}
+
+.ghost {
+  padding: $indent-1 $indent-2;
+  color: color('text-muted');
+  background: transparent;
+}
