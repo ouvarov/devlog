@@ -199,6 +199,28 @@ describe('AgentsController (e2e)', () => {
       expect(plan.focus.map(({ taskId }) => taskId)).not.toContain(doneId)
     })
 
+    it('returns a submit that fails the tool input schema to the model and goes on', async () => {
+      script = [
+        toolCallStep('list_tasks', {}),
+        toolCallStep('submit_plan', {
+          focus: [{ taskId: String(idOf('freshHigh')), reason: 'Id sent as a string' }],
+          later: [],
+          summary: 'Plan with a string id',
+        }),
+        submitListedOrder,
+      ]
+
+      const { meta, trace } = await prioritize()
+
+      expect(trace[1]?.toolCalls[0]).toMatchObject({
+        toolName: 'submit_plan',
+        isError: true,
+        isRejectedSubmit: true,
+      })
+      expect(trace[1]?.toolCalls[0]?.output).toContain('taskId')
+      expect(meta).toMatchObject({ source: 'llm', stoppedBy: 'submitted', steps: 3 })
+    })
+
     it('falls back to the formula when every submit is invalid up to the step limit', async () => {
       script = [
         toolCallStep('list_tasks', {}),

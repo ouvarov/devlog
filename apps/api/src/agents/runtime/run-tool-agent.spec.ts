@@ -27,12 +27,16 @@ const tools = {
   submit: tool({
     description: 'Accepts only the answer ok',
     inputSchema: z.object({ answer: z.string() }),
-    execute: ({ answer }): Promise<SubmitResult<string>> =>
-      Promise.resolve(
+    execute: ({ answer }): Promise<SubmitResult<string>> => {
+      if (answer === 'crash') {
+        return Promise.reject(Object.assign(new Error('Validator crashed'), { accepted: true }))
+      }
+      return Promise.resolve(
         answer === 'ok'
           ? { accepted: true, value: answer }
           : { accepted: false, errors: [`answer must be ok, got ${answer}`] },
-      ),
+      )
+    },
   }),
 }
 
@@ -86,6 +90,30 @@ describe('runToolAgent', () => {
     expect(result.status).toBe('submitted')
     expect(result.trace.map((step) => step.toolCalls[0]?.isRejectedSubmit)).toEqual([true, false])
     expect(JSON.stringify(model.doGenerateCalls[1]?.prompt)).toContain('answer must be ok, got no')
+  })
+
+  it('marks a submit that fails the input schema as rejected and goes on', async () => {
+    const { run } = runScript([
+      toolCallStep('submit', { answer: 42 }),
+      toolCallStep('submit', { answer: 'ok' }),
+    ])
+
+    const result = await run
+
+    expect(result.status).toBe('submitted')
+    expect(result.trace[0]?.toolCalls[0]).toMatchObject({ isError: true, isRejectedSubmit: true })
+  })
+
+  it('marks a submit whose execute throws as rejected, whatever the error carries', async () => {
+    const { run } = runScript([
+      toolCallStep('submit', { answer: 'crash' }),
+      toolCallStep('submit', { answer: 'ok' }),
+    ])
+
+    const result = await run
+
+    expect(result.status).toBe('submitted')
+    expect(result.trace[0]?.toolCalls[0]).toMatchObject({ isError: true, isRejectedSubmit: true })
   })
 
   it('leaves only the submit tool, required, on the last allowed step', async () => {
