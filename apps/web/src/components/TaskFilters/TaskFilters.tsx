@@ -29,8 +29,8 @@ const TaskFilters: FC<TaskFiltersProps> = ({ filters, onChange }) => {
 
   return (
     <div className={styles.filters}>
-      <label className={styles.filter} htmlFor={statusId}>
-        Status
+      <div className={styles.filter}>
+        <label htmlFor={statusId}>Status</label>
         <select
           id={statusId}
           className={styles.select}
@@ -44,10 +44,10 @@ const TaskFilters: FC<TaskFiltersProps> = ({ filters, onChange }) => {
             </option>
           ))}
         </select>
-      </label>
+      </div>
 
-      <label className={styles.filter} htmlFor={sortId}>
-        Sort
+      <div className={styles.filter}>
+        <label htmlFor={sortId}>Sort</label>
         <select
           id={sortId}
           className={styles.select}
@@ -60,7 +60,7 @@ const TaskFilters: FC<TaskFiltersProps> = ({ filters, onChange }) => {
             </option>
           ))}
         </select>
-      </label>
+      </div>
     </div>
   )
 }
