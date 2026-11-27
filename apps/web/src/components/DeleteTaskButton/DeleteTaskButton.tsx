@@ -30,10 +30,11 @@ const DeleteTaskButton: FC<DeleteTaskButtonProps> = ({
   redirectTo,
 }) => {
   const router = useRouter()
-  const { mutate: deleteTask, isPending, error } = useDeleteTask()
+  const { mutate: deleteTask, isPending, error, reset } = useDeleteTask()
   const confirmation = useConfirmation()
 
   const handleDelete = async () => {
+    reset()
     if (!(await confirmation.askConfirmation())) return
     deleteTask(taskId, { onSuccess: () => router.push(redirectTo) })
   }

@@ -27,12 +27,13 @@ const TaskStatusControl: FC<TaskStatusControlProps> = ({
   status,
   openSubtaskCount,
 }) => {
-  const { mutate: updateTask, isPending, variables, error } = useUpdateTask()
+  const { mutate: updateTask, isPending, variables, error, reset } = useUpdateTask()
   const confirmation = useConfirmation()
 
   const shownStatus = isPending ? (variables.changes.status ?? status) : status
 
   const changeStatus = async (nextStatus: TaskStatus) => {
+    reset()
     const isConfirmed =
       !needsDoneConfirmation(nextStatus, openSubtaskCount) || (await confirmation.askConfirmation())
     if (isConfirmed) updateTask({ id: taskId, changes: { status: nextStatus } })
