@@ -32,7 +32,7 @@ type CompactTaskRow = {
 
 type ListTasksOutput = { tasks: CompactTaskRow[]; hasMore: boolean }
 
-type TaskDetailOutput = Omit<CompactTaskRow, 'openSubtasks'> & {
+type TaskDetailOutput = CompactTaskRow & {
   description: string
   parent: TaskDetail['parent']
   subtasks: CompactTaskRow[]
@@ -71,15 +71,12 @@ const toCompactRow = (task: TaskView, now: Date): CompactTaskRow => ({
   openSubtasks: task.subtaskCount - task.subtaskDoneCount,
 })
 
-const toTaskDetailOutput = (task: TaskDetail, now: Date): TaskDetailOutput => {
-  const { openSubtasks: _openSubtasks, ...row } = toCompactRow(task, now)
-  return {
-    ...row,
-    description: task.description,
-    parent: task.parent,
-    subtasks: task.subtasks.map((subtask) => toCompactRow(subtask, now)),
-  }
-}
+const toTaskDetailOutput = (task: TaskDetail, now: Date): TaskDetailOutput => ({
+  ...toCompactRow(task, now),
+  description: task.description,
+  parent: task.parent,
+  subtasks: task.subtasks.map((subtask) => toCompactRow(subtask, now)),
+})
 
 const createPrioritizeTools = (tasksReader: TasksReader, now: Date) => ({
   list_tasks: tool({
