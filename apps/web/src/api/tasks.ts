@@ -39,8 +39,7 @@ const createTask = (input: CreateTask): Promise<TaskView> =>
 const updateTask = ({ id, changes }: TaskChanges): Promise<TaskView> =>
   requestJson(`/tasks/${id}`, TaskViewSchema, { method: 'PATCH', ...jsonBody(changes) })
 
-const deleteTask = (id: number): Promise<void> =>
-  requestEmpty(`/tasks/${id}`, { method: 'DELETE' })
+const deleteTask = (id: number): Promise<void> => requestEmpty(`/tasks/${id}`, { method: 'DELETE' })
 
 export { createTask, deleteTask, getTask, listTasks, updateTask }
 export type { TaskChanges }

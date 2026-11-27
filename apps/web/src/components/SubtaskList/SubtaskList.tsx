@@ -30,9 +30,7 @@ const SubtaskList: FC<SubtaskListProps> = ({ parentId }) => {
             {subtask.title}
           </Link>
           <span className={styles.key}>#{subtask.id}</span>
-          <Badge tone={PRIORITY_TONES[subtask.priority]}>
-            {PRIORITY_LABELS[subtask.priority]}
-          </Badge>
+          <Badge tone={PRIORITY_TONES[subtask.priority]}>{PRIORITY_LABELS[subtask.priority]}</Badge>
           <TaskStatusControl
             taskId={subtask.id}
             title={subtask.title}

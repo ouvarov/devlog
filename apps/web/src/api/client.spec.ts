@@ -18,7 +18,8 @@ const TASK = {
   completedAt: null,
 }
 
-const respondWith = (response: Response) => vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response))
+const respondWith = (response: Response) =>
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response))
 
 const jsonResponse = (body: unknown, status: number) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -79,7 +80,11 @@ describe('requestJson', () => {
 
     const error = await catchError(requestJson('/tasks', TaskViewSchema))
 
-    expect(error).toMatchObject({ status: 502, code: null, message: 'Request failed with status 502' })
+    expect(error).toMatchObject({
+      status: 502,
+      code: null,
+      message: 'Request failed with status 502',
+    })
   })
 
   it('reports a network failure as a network error', async () => {

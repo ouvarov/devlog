@@ -1,4 +1,4 @@
-import { type ApiErrorCode, type ApiIssue, ApiErrorSchema } from '@devlog/shared'
+import { type ApiErrorCode, ApiErrorSchema, type ApiIssue } from '@devlog/shared'
 
 import { API_URL } from '@/config/api'
 
