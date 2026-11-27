@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { TASKS_QUERY_KEY } from '@/api/queryKeys'
+import { invalidateTasks } from '@/api/invalidateTasks'
 import { updateTask } from '@/api/tasks'
 
 const useUpdateTask = () => {
@@ -8,7 +8,7 @@ const useUpdateTask = () => {
 
   return useMutation({
     mutationFn: updateTask,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY }),
+    onSuccess: () => invalidateTasks(queryClient),
   })
 }
 
