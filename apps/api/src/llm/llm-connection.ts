@@ -9,7 +9,6 @@ import { PRIORITIZE_MOCK_SCRIPT } from './mock/prioritize-mock-script.js'
 import { createScriptedModel } from './mock/scripted-model.js'
 
 const DEFAULT_LLM_PROVIDER: LlmProvider = 'google'
-const MOCK_MODEL_ID = 'scripted-mock'
 
 type ConfiguredLlm = {
   isConfigured: true
@@ -30,12 +29,8 @@ type LlmEnv = Pick<Env, 'LLM_PROVIDER' | 'GOOGLE_GENERATIVE_AI_API_KEY' | 'GEMIN
 const createLlmConnection = (env: LlmEnv): LlmConnection => {
   const provider = env.LLM_PROVIDER ?? DEFAULT_LLM_PROVIDER
   if (provider === 'mock') {
-    return {
-      isConfigured: true,
-      provider,
-      modelId: MOCK_MODEL_ID,
-      model: createScriptedModel(PRIORITIZE_MOCK_SCRIPT, MOCK_MODEL_ID),
-    }
+    const mockModel = createScriptedModel(PRIORITIZE_MOCK_SCRIPT)
+    return { isConfigured: true, provider, modelId: mockModel.modelId, model: mockModel }
   }
 
   const apiKey = env.GOOGLE_GENERATIVE_AI_API_KEY
