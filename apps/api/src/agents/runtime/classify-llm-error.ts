@@ -6,8 +6,15 @@ const HTTP_REQUEST_TIMEOUT = 408
 const HTTP_TOO_MANY_REQUESTS = 429
 const HTTP_GATEWAY_TIMEOUT = 504
 
+const TIMEOUT_ERROR_NAMES: ReadonlySet<unknown> = new Set(['TimeoutError', 'AbortError'])
+
+// The runtime passes no outside abort signal, so any abort is the total timeout; the retry
+// back-off rejects with AbortError instead of the signal's TimeoutError.
 const isTimeoutAbort = (error: unknown): boolean =>
-  typeof error === 'object' && error !== null && 'name' in error && error.name === 'TimeoutError'
+  typeof error === 'object' &&
+  error !== null &&
+  'name' in error &&
+  TIMEOUT_ERROR_NAMES.has(error.name)
 
 const classifyLlmError = (error: unknown): LlmFailure => {
   if (RetryError.isInstance(error)) return classifyLlmError(error.lastError)

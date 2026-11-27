@@ -31,6 +31,10 @@ describe('classifyLlmError', () => {
     expect(classifyLlmError(timeoutAbortError())).toBe('timeout')
   })
 
+  it('reports the retry back-off cut short by the total timeout as timeout', () => {
+    expect(classifyLlmError(new DOMException('Delay was aborted', 'AbortError'))).toBe('timeout')
+  })
+
   it('reports a provider deadline as timeout', () => {
     expect(classifyLlmError(apiErrorWithStatus(504))).toBe('timeout')
   })
