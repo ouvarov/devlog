@@ -115,3 +115,23 @@ describe('requestEmpty', () => {
     await expect(requestEmpty('/tasks/1', { method: 'DELETE' })).resolves.toBeUndefined()
   })
 })
+
+describe('API base URL', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
+
+  it('sends requests to NEXT_PUBLIC_API_URL', async () => {
+    vi.stubEnv('NEXT_PUBLIC_API_URL', 'http://api.test:4001')
+    vi.resetModules()
+    const client = await import('./client')
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await client.requestEmpty('/tasks/1', { method: 'DELETE' })
+
+    expect(fetchMock).toHaveBeenCalledWith('http://api.test:4001/tasks/1', { method: 'DELETE' })
+  })
+})

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { TASK_TITLE_MAX_LENGTH } from '@devlog/shared'
+
 import { ApiRequestError } from '@/api/client'
 import type { TaskFormValues } from '@/types/taskForm'
 
@@ -72,6 +74,17 @@ describe('getSubmitErrors', () => {
     })
   })
 
+  it('shows the server message when issues is an empty list', () => {
+    const error = new ApiRequestError({
+      message: 'Validation failed',
+      status: 400,
+      code: 'VALIDATION_FAILED',
+      issues: [],
+    })
+
+    expect(getSubmitErrors(error)).toEqual({ fields: {}, message: 'Validation failed' })
+  })
+
   it('shows a generic message for an unknown error', () => {
     expect(getSubmitErrors(new Error('boom')).message).toBe('Something went wrong. Try again.')
   })
@@ -84,6 +97,20 @@ describe('toCreateTaskInput', () => {
     expect(result).toEqual({
       success: false,
       errors: { fields: { title: 'This field is required' }, message: null },
+    })
+  })
+
+  it('names the limit when the title is too long', () => {
+    const result = toCreateTaskInput(
+      createFormValues({ title: 'x'.repeat(TASK_TITLE_MAX_LENGTH + 1) }),
+    )
+
+    expect(result).toEqual({
+      success: false,
+      errors: {
+        fields: { title: `Must be at most ${TASK_TITLE_MAX_LENGTH} characters` },
+        message: null,
+      },
     })
   })
 
