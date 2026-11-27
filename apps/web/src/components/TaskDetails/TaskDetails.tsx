@@ -104,7 +104,7 @@ const TaskDetails: FC<TaskDetailsProps> = ({ taskId }) => {
                 {task.subtaskDoneCount}/{task.subtaskCount}
               </span>
             </h2>
-            <AddTaskButton parentId={task.id} />
+            {task.status !== 'done' && <AddTaskButton parentId={task.id} />}
           </div>
           <SubtaskList parentId={task.id} />
         </section>
