@@ -77,7 +77,6 @@ const TaskForm: FC<TaskFormProps> = ({ initialValues, submitLabel, onSubmit, onC
           name="title"
           className={styles.control}
           defaultValue={initialValues.title}
-          autoFocus
           {...getErrorProps('title')}
         />
         {renderFieldError('title')}

@@ -30,7 +30,7 @@ const ConfirmDialog: FC<ConfirmDialogProps> = ({
     <p className={styles.message}>{message}</p>
     <div className={styles.actions}>
       <Button onClick={onCancel}>Cancel</Button>
-      <Button variant={confirmVariant} onClick={onConfirm} autoFocus>
+      <Button variant={confirmVariant} onClick={onConfirm}>
         {confirmLabel}
       </Button>
     </div>
