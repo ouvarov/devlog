@@ -1,0 +1,25 @@
+@use 'tokens' as *;
+
+.select {
+  @include font-size('small');
+
+  padding: 0 $indent-2;
+  font-family: inherit;
+  background: color('surface');
+  border: 1px solid currentColor;
+  border-radius: $radius-pill;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+}
+
+.error {
+  @include font-size('small');
+
+  color: color('danger');
+}
+
+@include tone-classes;

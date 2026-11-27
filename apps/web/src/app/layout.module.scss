@@ -1,0 +1,24 @@
+@use 'tokens' as *;
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-6;
+  max-width: $page-max-width;
+  margin: 0 auto;
+  padding: $indent-6;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  @include font-size('heading');
+
+  font-weight: bold;
+  color: color('text');
+  text-decoration: none;
+}

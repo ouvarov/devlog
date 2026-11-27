@@ -1,0 +1,49 @@
+@use 'tokens' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-4;
+}
+
+.field {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: $indent-1;
+}
+
+.row {
+  display: flex;
+  gap: $indent-4;
+}
+
+.control {
+  padding: $indent-2;
+  font: inherit;
+  color: color('text');
+  background: color('surface');
+  border: 1px solid color('border');
+  border-radius: $radius-control;
+
+  &[aria-invalid='true'] {
+    border-color: color('danger');
+  }
+}
+
+.error {
+  @include font-size('small');
+
+  margin: 0;
+  color: color('danger');
+}
+
+.formError {
+  composes: error;
+}
+
+.actions {
+  display: flex;
+  gap: $indent-2;
+  justify-content: flex-end;
+}

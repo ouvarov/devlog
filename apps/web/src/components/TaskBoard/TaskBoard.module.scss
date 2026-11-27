@@ -1,0 +1,19 @@
+@use 'tokens' as *;
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-4;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  @include font-size('title');
+
+  margin: 0;
+}

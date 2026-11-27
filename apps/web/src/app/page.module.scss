@@ -1,17 +1,30 @@
 @use 'tokens' as *;
 
 .page {
-  display: flex;
-  flex-direction: column;
-  gap: $indent-4;
-  align-items: flex-start;
-  max-width: $page-max-width;
-  margin: 0 auto;
-  padding: $indent-16 $indent-6;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) $agents-width;
+  gap: $indent-6;
+  align-items: start;
 }
 
-.title {
-  @include font-size('title');
+.main {
+  min-width: 0;
+}
 
+.agents {
+  padding: $indent-4;
+  background: color('surface');
+  border: 1px dashed color('border');
+  border-radius: $radius-card;
+}
+
+.agentsTitle {
+  @include font-size('heading');
+
+  margin: 0 0 $indent-2;
+}
+
+.note {
   margin: 0;
+  color: color('text-muted');
 }

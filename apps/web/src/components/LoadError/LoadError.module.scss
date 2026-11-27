@@ -1,0 +1,17 @@
+@use 'tokens' as *;
+
+.error {
+  display: flex;
+  gap: $indent-4;
+  align-items: center;
+  justify-content: space-between;
+  padding: $indent-4;
+  background: color('surface');
+  border: 1px solid color('danger');
+  border-radius: $radius-card;
+}
+
+.message {
+  margin: 0;
+  color: color('danger');
+}

@@ -16,7 +16,7 @@
     "build": "npm run build --workspaces",
     "lint": "eslint .",
     "typecheck": "npm run typecheck --workspaces",
-    "test": "node --test scripts/*.test.mjs && npm test -w @devlog/api",
+    "test": "node --test scripts/*.test.mjs && npm test -w @devlog/api && npm test -w @devlog/web",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:reset": "npm run db:reset -w @devlog/api"

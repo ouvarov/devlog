@@ -1,0 +1,7 @@
+@use 'tokens' as *;
+
+.error {
+  @include font-size('small');
+
+  color: color('danger');
+}

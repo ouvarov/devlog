@@ -1,0 +1,91 @@
+@use 'tokens' as *;
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-4;
+}
+
+.back {
+  @include font-size('small');
+
+  color: color('accent');
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.header {
+  display: flex;
+  gap: $indent-4;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.title {
+  @include font-size('title');
+
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.key {
+  @include font-size('body');
+
+  font-weight: normal;
+  color: color('text-muted');
+}
+
+.actions,
+.meta {
+  display: flex;
+  gap: $indent-2;
+  align-items: center;
+}
+
+.description {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.note {
+  margin: 0;
+  color: color('text-muted');
+}
+
+.dates {
+  @include font-size('small');
+
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: $indent-1 $indent-4;
+  margin: 0;
+  color: color('text-muted');
+
+  dd {
+    margin: 0;
+  }
+}
+
+.subtasks {
+  overflow: hidden;
+  background: color('surface');
+  border: 1px solid color('border');
+  border-radius: $radius-card;
+}
+
+.subtasksHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $indent-3 $indent-4;
+}
+
+.subtasksTitle {
+  @include font-size('heading');
+
+  margin: 0;
+}
