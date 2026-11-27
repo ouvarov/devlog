@@ -22,7 +22,9 @@ const focusSizeErrors = (focusSize: number, openTaskCount: number): string[] => 
   if (openTaskCount < PLAN_FOCUS_MIN_SIZE) {
     return [`focus must list all ${openTaskCount} open tasks`]
   }
-  return [`focus must have ${PLAN_FOCUS_MIN_SIZE} to ${PLAN_FOCUS_MAX_SIZE} tasks, got ${focusSize}`]
+  return [
+    `focus must have ${PLAN_FOCUS_MIN_SIZE} to ${PLAN_FOCUS_MAX_SIZE} tasks, got ${focusSize}`,
+  ]
 }
 
 const plannedIdsOf = (plan: PrioritizePlan): number[] => [

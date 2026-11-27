@@ -16,7 +16,11 @@ describe('createLlmConnection', () => {
       validateEnv({ GOOGLE_GENERATIVE_AI_API_KEY: 'test-key', GEMINI_MODEL: 'gemini-test' }),
     )
 
-    expect(connection).toMatchObject({ isConfigured: true, provider: 'google', modelId: 'gemini-test' })
+    expect(connection).toMatchObject({
+      isConfigured: true,
+      provider: 'google',
+      modelId: 'gemini-test',
+    })
     const model = connection.isConfigured ? connection.model : undefined
     expect(typeof model).toBe('object')
     expect(typeof model === 'object' ? model.provider : undefined).toMatch(/^google/)
@@ -25,7 +29,11 @@ describe('createLlmConnection', () => {
   it('builds the scripted mock for LLM_PROVIDER=mock without a key', () => {
     const connection = createLlmConnection(validateEnv({ LLM_PROVIDER: 'mock' }))
 
-    expect(connection).toMatchObject({ isConfigured: true, provider: 'mock', modelId: 'scripted-mock' })
+    expect(connection).toMatchObject({
+      isConfigured: true,
+      provider: 'mock',
+      modelId: 'scripted-mock',
+    })
   })
 })
 

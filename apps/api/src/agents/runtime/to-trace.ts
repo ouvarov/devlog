@@ -20,11 +20,15 @@ const truncate = (text: string): string =>
     ? text
     : `${text.slice(0, MAX_TRACE_OUTPUT_LENGTH - TRUNCATION_MARK.length)}${TRUNCATION_MARK}`
 
-const toolOutcomesOf = <TOOLS extends ToolSet>(step: StepResult<TOOLS>): Map<string, ToolOutcome> => {
+const toolOutcomesOf = <TOOLS extends ToolSet>(
+  step: StepResult<TOOLS>,
+): Map<string, ToolOutcome> => {
   const outcomes = new Map<string, ToolOutcome>()
   for (const part of step.content) {
-    if (part.type === 'tool-result') outcomes.set(part.toolCallId, { output: part.output, isError: false })
-    if (part.type === 'tool-error') outcomes.set(part.toolCallId, { output: part.error, isError: true })
+    if (part.type === 'tool-result')
+      outcomes.set(part.toolCallId, { output: part.output, isError: false })
+    if (part.type === 'tool-error')
+      outcomes.set(part.toolCallId, { output: part.error, isError: true })
   }
   return outcomes
 }

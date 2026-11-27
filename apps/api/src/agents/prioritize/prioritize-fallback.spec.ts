@@ -72,7 +72,9 @@ describe('buildFallbackPlan', () => {
   it('explains each focus task and the fallback reason in English', () => {
     const plan = buildFallbackPlan(openTasks, 'timeout', NOW)
 
-    expect(plan.focus[0]?.reason).toBe('high priority, already in progress, open 7 days (score 8.0)')
+    expect(plan.focus[0]?.reason).toBe(
+      'high priority, already in progress, open 7 days (score 8.0)',
+    )
     expect(plan.summary).toContain('the model did not answer in time')
   })
 

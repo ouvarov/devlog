@@ -5,7 +5,12 @@ import { badRequestError, rateLimitError, timeoutAbortError } from '../../llm/mo
 import { classifyLlmError } from './classify-llm-error.js'
 
 const apiErrorWithStatus = (statusCode: number): APICallError =>
-  new APICallError({ message: 'Failed', url: 'https://mock.invalid', requestBodyValues: {}, statusCode })
+  new APICallError({
+    message: 'Failed',
+    url: 'https://mock.invalid',
+    requestBodyValues: {},
+    statusCode,
+  })
 
 describe('classifyLlmError', () => {
   it('reports a 429 as rate-limited', () => {

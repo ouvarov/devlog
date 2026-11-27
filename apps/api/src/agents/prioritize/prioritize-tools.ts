@@ -3,9 +3,9 @@ import { z } from 'zod'
 
 import {
   type PrioritizePlan,
+  type TaskDetail,
   TaskIdSchema,
   TaskPrioritySchema,
-  type TaskDetail,
   type TaskView,
 } from '@devlog/shared'
 

@@ -18,7 +18,11 @@ const EMPTY_USAGE: MockGenerateResult['usage'] = {
 const stepIndexOf = (prompt: MockPrompt): number =>
   prompt.filter((message) => message.role === 'assistant').length
 
-const toolCallStep = (toolName: string, input: unknown, toolCallId = toolName): MockGenerateResult => ({
+const toolCallStep = (
+  toolName: string,
+  input: unknown,
+  toolCallId = toolName,
+): MockGenerateResult => ({
   content: [{ type: 'tool-call', toolCallId, toolName, input: JSON.stringify(input) }],
   finishReason: { unified: 'tool-calls', raw: undefined },
   usage: EMPTY_USAGE,

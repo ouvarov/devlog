@@ -42,7 +42,12 @@ const createLlmConnection = (env: LlmEnv): LlmConnection => {
   if (!apiKey) return { isConfigured: false, provider }
 
   const google = createGoogle({ apiKey })
-  return { isConfigured: true, provider, modelId: env.GEMINI_MODEL, model: google(env.GEMINI_MODEL) }
+  return {
+    isConfigured: true,
+    provider,
+    modelId: env.GEMINI_MODEL,
+    model: google(env.GEMINI_MODEL),
+  }
 }
 
 const requireConfiguredLlm = (connection: LlmConnection): ConfiguredLlm => {

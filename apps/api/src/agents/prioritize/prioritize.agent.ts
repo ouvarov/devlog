@@ -10,7 +10,11 @@ import {
   type TaskView,
 } from '@devlog/shared'
 
-import { type ConfiguredLlm, type LlmConnection, requireConfiguredLlm } from '../../llm/llm-connection.js'
+import {
+  type ConfiguredLlm,
+  type LlmConnection,
+  requireConfiguredLlm,
+} from '../../llm/llm-connection.js'
 import { LLM } from '../../llm/llm.tokens.js'
 import { TasksReader } from '../../tasks/tasks.reader.js'
 import { type ToolAgentRun, runToolAgent } from '../runtime/run-tool-agent.js'
@@ -43,7 +47,8 @@ const buildPrompt = (openTaskCount: number, now: Date): string =>
 
 const fallbackOutcomeOf = (run: ToolAgentRun): FallbackOutcome => {
   if (run.status === 'failed') return { stoppedBy: 'error', fallbackReason: run.failure }
-  if (run.status === 'step-limit') return { stoppedBy: 'step-limit', fallbackReason: 'invalid-output' }
+  if (run.status === 'step-limit')
+    return { stoppedBy: 'step-limit', fallbackReason: 'invalid-output' }
   return { stoppedBy: 'error', fallbackReason: 'invalid-output' }
 }
 
@@ -107,7 +112,11 @@ export class PrioritizeAgent {
       `prioritize fell back (${fallback.fallbackReason}) after ${run.stepCount} steps: ${errorMessageOf(run)}`,
     )
     const meta: AgentMeta = { ...runMeta, source: 'fallback', ...fallback }
-    return { plan: buildFallbackPlan(openTasks, fallback.fallbackReason, now), meta, trace: run.trace }
+    return {
+      plan: buildFallbackPlan(openTasks, fallback.fallbackReason, now),
+      meta,
+      trace: run.trace,
+    }
   }
 
   private skipped(llm: ConfiguredLlm): PrioritizeResponse {

@@ -1,8 +1,8 @@
 import { PGlite } from '@electric-sql/pglite'
 import type { NestExpressApplication } from '@nestjs/platform-express'
 import { Test } from '@nestjs/testing'
-import { sql } from 'drizzle-orm'
 import { MockLanguageModelV4 } from 'ai/test'
+import { sql } from 'drizzle-orm'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
@@ -150,7 +150,11 @@ describe('AgentsController (e2e)', () => {
         provider: 'mock',
         modelId: E2E_MODEL_ID,
         agents: [
-          { name: 'prioritize', maxSteps: MAX_STEPS, tools: ['list_tasks', 'get_task', 'submit_plan'] },
+          {
+            name: 'prioritize',
+            maxSteps: MAX_STEPS,
+            tools: ['list_tasks', 'get_task', 'submit_plan'],
+          },
         ],
       })
     })
@@ -230,7 +234,12 @@ describe('AgentsController (e2e)', () => {
 
       const { plan, meta, trace } = await prioritize()
 
-      expect(meta).toMatchObject({ source: 'fallback', stoppedBy: 'error', fallbackReason, steps: 1 })
+      expect(meta).toMatchObject({
+        source: 'fallback',
+        stoppedBy: 'error',
+        fallbackReason,
+        steps: 1,
+      })
       expect(trace).toHaveLength(1)
       expect(trace[0]?.toolCalls[0]?.toolName).toBe('list_tasks')
       expect(plan.focus).toHaveLength(5)

@@ -16,7 +16,11 @@ import type {
 import type { DatabaseExecutor } from '../db/database.js'
 import { toTaskView } from './task-view.mapper.js'
 import { TasksReader } from './tasks.reader.js'
-import { type NewTaskValues, type TaskCompletionChange, TasksRepository } from './tasks.repository.js'
+import {
+  type NewTaskValues,
+  type TaskCompletionChange,
+  TasksRepository,
+} from './tasks.repository.js'
 
 const toNewTaskValues = (input: CreateTask): NewTaskValues => ({
   title: input.title,

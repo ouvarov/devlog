@@ -110,7 +110,10 @@ describe('runToolAgent', () => {
   })
 
   it('cuts tool outputs in the trace to 300 characters', async () => {
-    const { run } = runScript([toolCallStep('lookup', {}), toolCallStep('submit', { answer: 'ok' })])
+    const { run } = runScript([
+      toolCallStep('lookup', {}),
+      toolCallStep('submit', { answer: 'ok' }),
+    ])
 
     const result = await run
 
