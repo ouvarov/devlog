@@ -52,7 +52,8 @@ const runScript = (script: MockScript) => {
 const abortWhenSignalled = (options: MockCallOptions) =>
   new Promise<never>((_resolve, reject) => {
     options.abortSignal?.addEventListener('abort', () => {
-      reject(options.abortSignal?.reason)
+      const reason: unknown = options.abortSignal?.reason
+      reject(reason instanceof Error ? reason : new Error(String(reason)))
     })
   })
 
