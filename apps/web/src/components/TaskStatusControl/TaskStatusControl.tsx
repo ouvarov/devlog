@@ -40,7 +40,7 @@ const TaskStatusControl: FC<TaskStatusControlProps> = ({
 
   const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const nextStatus = pickOption(TASK_STATUSES, event.target.value)
-    if (nextStatus) void changeStatus(nextStatus)
+    if (nextStatus && !isPending) void changeStatus(nextStatus)
   }
 
   return (
@@ -49,7 +49,7 @@ const TaskStatusControl: FC<TaskStatusControlProps> = ({
         className={`${styles.select} ${styles[STATUS_TONES[shownStatus]]}`}
         value={shownStatus}
         onChange={handleChange}
-        disabled={isPending}
+        aria-busy={isPending}
         aria-label={`Status of ${title}`}
       >
         {TASK_STATUSES.map((option) => (
