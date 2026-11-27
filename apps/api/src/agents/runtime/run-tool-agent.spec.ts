@@ -100,6 +100,20 @@ describe('runToolAgent', () => {
     expect(model.doGenerateCalls[0]?.tools?.map(({ name }) => name)).toEqual(['lookup', 'submit'])
   })
 
+  it('reports text on the forced last step as the step limit and keeps the earlier steps', async () => {
+    const { run } = runScript([
+      toolCallStep('lookup', {}),
+      toolCallStep('lookup', {}),
+      toolCallStep('lookup', {}),
+      textStep('I would rather explain the plan in words.'),
+    ])
+
+    const result = await run
+
+    expect(result).toMatchObject({ status: 'step-limit', stepCount: MAX_STEPS - 1 })
+    expect(result.trace).toHaveLength(MAX_STEPS - 1)
+  })
+
   it('reports a model that answers with text and no submit', async () => {
     const { run } = runScript([textStep('I think task 1 first.')])
 

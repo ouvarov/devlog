@@ -2,6 +2,7 @@ import {
   type LanguageModel,
   type StepResult,
   type StopCondition,
+  ToolChoiceViolationError,
   type ToolSet,
   generateText,
   isStepCount,
@@ -95,6 +96,8 @@ const runToolAgent = async <TOOLS extends ToolSet>(
       },
     })
   } catch (error) {
+    // Only the forced last step sets a tool choice: a violation means no submit within the limit.
+    if (ToolChoiceViolationError.isInstance(error)) return finish({ status: 'step-limit' })
     return finish({ status: 'failed', failure: classifyLlmError(error), error })
   }
 

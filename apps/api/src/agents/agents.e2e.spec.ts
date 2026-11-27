@@ -29,6 +29,7 @@ import {
   type MockScript,
   createScriptedModel,
   failingStep,
+  textStep,
   toolCallStep,
 } from '../llm/mock/scripted-model.js'
 
@@ -223,6 +224,29 @@ describe('AgentsController (e2e)', () => {
       )
       expect(plan.later).toEqual([idOf('weekLow')])
       expect(trace.slice(1).every(({ toolCalls }) => toolCalls[0]?.isRejectedSubmit)).toBe(true)
+    })
+
+    it('falls back with invalid-output when the forced last step answers with text only', async () => {
+      const invalidSubmit = toolCallStep('submit_plan', {
+        focus: [{ taskId: MISSING_TASK_ID, reason: 'Invented' }],
+        later: [],
+        summary: 'Invented plan',
+      })
+      script = [
+        toolCallStep('list_tasks', {}),
+        ...Array.from({ length: MAX_STEPS - 2 }, () => invalidSubmit),
+        textStep('Here is my plan in words instead.'),
+      ]
+
+      const { meta, trace } = await prioritize()
+
+      expect(meta).toMatchObject({
+        source: 'fallback',
+        stoppedBy: 'step-limit',
+        fallbackReason: 'invalid-output',
+        steps: MAX_STEPS - 1,
+      })
+      expect(trace).toHaveLength(MAX_STEPS - 1)
     })
 
     it.each([
