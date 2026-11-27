@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
+import { LLM_PROVIDERS } from '@devlog/shared'
+
 const DEFAULT_PORT = 4000
 const DEFAULT_WEB_ORIGIN = 'http://localhost:3000'
 const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite'
-
-const LLM_PROVIDERS = ['google', 'mock'] as const
 
 const envSchema = z
   .object({

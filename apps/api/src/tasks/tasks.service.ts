@@ -8,33 +8,15 @@ import type {
   ListTasksQuery,
   TaskDetail,
   TaskListResponse,
-  TaskParent,
   TaskStatus,
   TaskView,
   UpdateTask,
 } from '@devlog/shared'
 
 import type { DatabaseExecutor } from '../db/database.js'
-import {
-  type NewTaskValues,
-  type TaskCompletionChange,
-  type TaskRecord,
-  TasksRepository,
-} from './tasks.repository.js'
-
-const toTaskView = (task: TaskRecord): TaskView => ({
-  id: task.id,
-  title: task.title,
-  description: task.description,
-  status: task.status,
-  priority: task.priority,
-  parentId: task.parentId,
-  subtaskCount: task.subtaskCount,
-  subtaskDoneCount: task.subtaskDoneCount,
-  createdAt: task.createdAt.toISOString(),
-  updatedAt: task.updatedAt.toISOString(),
-  completedAt: task.completedAt?.toISOString() ?? null,
-})
+import { toTaskView } from './task-view.mapper.js'
+import { TasksReader } from './tasks.reader.js'
+import { type NewTaskValues, type TaskCompletionChange, TasksRepository } from './tasks.repository.js'
 
 const toNewTaskValues = (input: CreateTask): NewTaskValues => ({
   title: input.title,
@@ -59,7 +41,10 @@ const taskNotFound = (id: number): NotFoundException =>
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly tasksRepository: TasksRepository) {}
+  constructor(
+    private readonly tasksRepository: TasksRepository,
+    private readonly tasksReader: TasksReader,
+  ) {}
 
   async list(query: ListTasksQuery): Promise<TaskListResponse> {
     const tasks = await this.tasksRepository.findTopLevel(query)
@@ -67,14 +52,9 @@ export class TasksService {
   }
 
   async findOne(id: number): Promise<TaskDetail> {
-    const task = await this.tasksRepository.findById(id)
+    const task = await this.tasksReader.findDetail(id)
     if (!task) throw taskNotFound(id)
-
-    const [subtasks, parent] = await Promise.all([
-      this.tasksRepository.findSubtasks(id),
-      this.findParent(task.parentId),
-    ])
-    return { ...toTaskView(task), subtasks: subtasks.map(toTaskView), parent }
+    return task
   }
 
   create(input: CreateTask): Promise<TaskView> {
@@ -102,13 +82,6 @@ export class TasksService {
       const updated = await this.updateTasks(batch.update, tx)
       return { created, updated }
     })
-  }
-
-  private async findParent(parentId: number | null): Promise<TaskParent | null> {
-    if (parentId === null) return null
-
-    const parent = await this.tasksRepository.findById(parentId)
-    return parent ? { id: parent.id, title: parent.title } : null
   }
 
   private async createTasks(inputs: CreateTask[], tx: DatabaseExecutor): Promise<TaskView[]> {

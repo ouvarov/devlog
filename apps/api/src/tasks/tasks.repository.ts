@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { type SQL, and, asc, count, desc, eq, inArray, isNull, sql } from 'drizzle-orm'
+import { type SQL, and, asc, count, desc, eq, inArray, isNull, ne, sql } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 
 import {
@@ -46,6 +46,11 @@ type NewTaskValues = {
   isCompleted: boolean
 }
 
+type OpenTasksFilter = {
+  status?: Exclude<TaskStatus, 'done'>
+  priority?: TaskPriority
+}
+
 type TaskCompletionChange = 'complete' | 'reopen' | 'unchanged'
 
 type TaskUpdateValues = {
@@ -88,6 +93,19 @@ export class TasksRepository {
       .where(and(isNull(tasks.parentId), statusFilter))
       .orderBy(...orderByFor(query))
       .limit(MAX_LIST_SIZE)
+  }
+
+  findOpen(filter: OpenTasksFilter, limit: number): Promise<TaskRecord[]> {
+    return this.selectTaskRecords(this.db)
+      .where(
+        and(
+          ne(tasks.status, DONE_STATUS),
+          filter.status ? eq(tasks.status, filter.status) : undefined,
+          filter.priority ? eq(tasks.priority, filter.priority) : undefined,
+        ),
+      )
+      .orderBy(desc(priorityRank), asc(tasks.createdAt), asc(tasks.id))
+      .limit(limit)
   }
 
   async findById(id: number): Promise<TaskRecord | null> {
@@ -195,4 +213,11 @@ export class TasksRepository {
   }
 }
 
-export type { NewTaskValues, TaskCompletionChange, TaskParentRecord, TaskRecord, TaskUpdateValues }
+export type {
+  NewTaskValues,
+  OpenTasksFilter,
+  TaskCompletionChange,
+  TaskParentRecord,
+  TaskRecord,
+  TaskUpdateValues,
+}

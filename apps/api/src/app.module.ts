@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_PIPE } from '@nestjs/core'
 
+import { AgentsModule } from './agents/agents.module.js'
 import { ApiExceptionFilter } from './common/errors/api-exception.filter.js'
 import { createSchemaValidationPipe } from './common/validation/schema-validation.pipe.js'
 import { validateEnv } from './config/env.schema.js'
@@ -23,6 +24,7 @@ const ROOT_ENV_FILE_PATH = fileURLToPath(new URL('../../../.env', import.meta.ur
     DbModule,
     HealthModule,
     TasksModule,
+    AgentsModule,
   ],
   providers: [
     { provide: APP_PIPE, useFactory: createSchemaValidationPipe },

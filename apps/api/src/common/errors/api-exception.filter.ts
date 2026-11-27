@@ -11,6 +11,7 @@ import { HttpAdapterHost } from '@nestjs/core'
 import type { ApiError, ApiErrorCode } from '@devlog/shared'
 
 import { ValidationFailedException } from '../validation/validation-failed.exception.js'
+import { LlmNotConfiguredException } from './llm-not-configured.exception.js'
 import { mapPostgresError } from './postgres-error.js'
 
 const API_ERROR_CODES_BY_STATUS: Readonly<Partial<Record<number, ApiErrorCode>>> = {
@@ -43,6 +44,9 @@ const fromHttpException = (exception: HttpException): ApiError => {
   const message = messageOf(exception)
   if (exception instanceof ValidationFailedException) {
     return { statusCode, code: 'VALIDATION_FAILED', message, issues: exception.issues }
+  }
+  if (exception instanceof LlmNotConfiguredException) {
+    return { statusCode, code: 'LLM_NOT_CONFIGURED', message }
   }
 
   return { statusCode, code: codeForStatus(statusCode), message }
