@@ -2,6 +2,8 @@
 
 import { type FC, useId } from 'react'
 
+import { PLAN_FOCUS_MAX_SIZE, PLAN_FOCUS_MIN_SIZE } from '@devlog/shared'
+
 import { AgentRunning } from '@/components/AgentRunning/AgentRunning'
 import { Button } from '@/components/Button/Button'
 import { LoadError } from '@/components/LoadError/LoadError'
@@ -40,7 +42,10 @@ const PrioritizePanel: FC = () => {
           {prioritize.data ? 'Run again' : 'Run'}
         </Button>
       </div>
-      <p className={styles.note}>Picks 3–5 tasks to focus on now, with a reason for each.</p>
+      <p className={styles.note}>
+        Picks {PLAN_FOCUS_MIN_SIZE}–{PLAN_FOCUS_MAX_SIZE} tasks to focus on now, with a reason for
+        each.
+      </p>
       {isNotConfigured && (
         <p id={hintId} className={styles.hint}>
           Set an LLM key or LLM_PROVIDER=mock to run agents.
