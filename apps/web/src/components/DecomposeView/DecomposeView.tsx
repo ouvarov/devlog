@@ -90,7 +90,7 @@ const DecomposeView: FC<DecomposeViewProps> = ({
         key={getPhaseGroup(state.phase)}
         ref={phaseRef}
         className={styles.phase}
-        tabIndex={-1}
+        tabIndex={state.phase === 'idle' ? undefined : -1}
         role="group"
         aria-label={PHASE_LABELS[state.phase]}
       >

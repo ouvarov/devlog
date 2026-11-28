@@ -41,6 +41,7 @@ describe('DecomposeView', () => {
     expect(markup).toContain('Don&#x27;t ask questions')
     expect(markup).toMatch(/<p[^>]*role="status"[^>]*><\/p>/)
     expect(markup).toContain('Break down')
+    expect(markup).not.toContain('tabindex="-1"')
   })
 
   it('disables the start with a hint when no LLM is configured', () => {
