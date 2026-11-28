@@ -1,10 +1,16 @@
 import { z } from 'zod'
 
+import { AgentTraceStepSchema } from './agent.js'
+
 const API_ERROR_CODES = [
   'VALIDATION_FAILED',
   'BAD_REQUEST',
   'NOT_FOUND',
   'CONFLICT',
+  'LLM_NOT_CONFIGURED',
+  'LLM_RATE_LIMITED',
+  'LLM_UNAVAILABLE',
+  'AGENT_FAILED',
   'INTERNAL',
 ] as const
 
@@ -23,6 +29,7 @@ const ApiErrorSchema = z
     code: ApiErrorCodeSchema,
     message: z.string(),
     issues: z.array(ApiIssueSchema).optional(),
+    trace: z.array(AgentTraceStepSchema).optional(),
   })
   .strict()
 
