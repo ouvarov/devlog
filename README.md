@@ -48,9 +48,9 @@ npm run format:check
 
 ## LLM
 
-Підтримано лише Gemini і `mock`. Завдання просить будь-який LLM API і хоча б одного агента на справжньому API; у Gemini є безкоштовний tier. Агенти звертаються до моделі через Vercel AI SDK, тож інший провайдер — це зміна одного файлу `apps/api/src/llm/llm-connection.ts` і ще одна залежність.
+Підтримано лише Gemini і `mock`. Завдання просить будь-який LLM API і хоча б одного агента на справжньому API; у Gemini є безкоштовний tier. Агенти звертаються до моделі через Vercel AI SDK, тож код агентів від провайдера не залежить. Інший провайдер — це пакет провайдера AI SDK, гілка в `apps/api/src/llm/llm-connection.ts`, нове значення в `LLM_PROVIDERS` (`packages/shared/src/agent.ts`) і змінна для ключа в `apps/api/src/config/env.schema.ts` та `.env.example`.
 
-Як отримати безкоштовний ключ: відкрийте https://aistudio.google.com, натисніть Get API key, створіть ключ і вставте його в `.env`:
+Як отримати безкоштовний ключ: відкрийте https://aistudio.google.com, натисніть Get API key і вставте ключ у `.env`:
 
 ```sh
 GOOGLE_GENERATIVE_AI_API_KEY=...
