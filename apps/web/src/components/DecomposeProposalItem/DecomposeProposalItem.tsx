@@ -43,17 +43,15 @@ const DecomposeProposalItem: FC<DecomposeProposalItemProps> = ({
   return (
     <li className={isIncluded ? styles.item : styles.excluded}>
       <fieldset className={styles.fieldset}>
-        <legend className={styles.legend}>Subtask {position}</legend>
-
-        <div className={styles.include}>
+        <legend className={styles.legend}>
           <input
             id={`${itemId}-include`}
             type="checkbox"
             checked={isIncluded}
             onChange={(event) => onChange({ isIncluded: event.target.checked })}
           />
-          <label htmlFor={`${itemId}-include`}>Create this subtask</label>
-        </div>
+          <label htmlFor={`${itemId}-include`}>Create subtask {position}</label>
+        </legend>
 
         <div className={styles.field}>
           <label htmlFor={`${itemId}-title`}>Title</label>

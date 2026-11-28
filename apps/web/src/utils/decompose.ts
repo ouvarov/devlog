@@ -30,6 +30,7 @@ const ERROR_TITLES: Partial<Record<ApiErrorCode, string>> = {
 }
 
 const DEFAULT_ERROR_TITLE = 'The agent could not run'
+const MARKED_ITEMS_MESSAGE = 'Fix the marked subtasks and try again.'
 
 const toStartRequest = (taskId: number, isSkippingQuestions: boolean): DecomposeRequest =>
   isSkippingQuestions ? { taskId, skipClarification: true } : { taskId }
@@ -66,7 +67,7 @@ const toProposalErrors = (
   issues: readonly ValidationIssue[],
   includedItems: readonly ProposalItemDraft[],
 ): ProposalErrors => {
-  const errors: ProposalErrors = { items: {}, message: null }
+  const itemErrors: ProposalErrors['items'] = {}
   const messages: string[] = []
 
   for (const issue of issues) {
@@ -74,11 +75,14 @@ const toProposalErrors = (
     const item =
       operation === 'create' && typeof index === 'number' ? includedItems[index] : undefined
     const message = getIssueMessage({ ...issue, path: fieldPath })
-    if (item) errors.items[item.key] ??= message
+    if (item) itemErrors[item.key] ??= message
     else messages.push(message)
   }
 
-  return { ...errors, message: messages.length > 0 ? messages.join('. ') : null }
+  if (messages.length === 0 && Object.keys(itemErrors).length > 0) {
+    messages.push(MARKED_ITEMS_MESSAGE)
+  }
+  return { items: itemErrors, message: messages.length > 0 ? messages.join('. ') : null }
 }
 
 const toBatchInput = (

@@ -25,16 +25,11 @@
 }
 
 .legend {
-  @include font-size('small');
-
-  padding: 0;
-  color: color('text-muted');
-}
-
-.include {
   display: flex;
   gap: $indent-2;
   align-items: center;
+  margin-bottom: $indent-2;
+  padding: 0;
 }
 
 .field {
