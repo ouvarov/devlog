@@ -125,6 +125,8 @@ describe('DecomposeView', () => {
     )
 
     expect(renderState(oneUnticked)).toContain('Create 2 subtasks')
+    expect(renderState(oneUnticked).match(/Not created/g)).toHaveLength(1)
+    expect(renderState(proposal)).not.toContain('Not created')
     expect(renderState(noneTicked)).toMatch(/<button[^>]*disabled=""[^>]*>Create 0 subtasks/)
   })
 

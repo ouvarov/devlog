@@ -51,6 +51,7 @@ const DecomposeProposalItem: FC<DecomposeProposalItemProps> = ({
             onChange={(event) => onChange({ isIncluded: event.target.checked })}
           />
           <label htmlFor={`${itemId}-include`}>Create subtask {position}</label>
+          {!isIncluded && <span className={styles.skipped}>Not created</span>}
         </legend>
 
         <div className={styles.field}>

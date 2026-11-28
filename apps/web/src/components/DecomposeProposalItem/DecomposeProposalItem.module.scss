@@ -11,7 +11,13 @@
   composes: item;
 
   background: color('surface-muted');
-  opacity: 0.7;
+  border-style: dashed;
+}
+
+.skipped {
+  @include font-size('small');
+
+  color: color('text-muted');
 }
 
 .fieldset {
