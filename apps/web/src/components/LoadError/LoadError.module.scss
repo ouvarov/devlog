@@ -2,6 +2,7 @@
 
 .error {
   display: flex;
+  flex-wrap: wrap;
   gap: $indent-4;
   align-items: center;
   justify-content: space-between;
@@ -13,5 +14,6 @@
 
 .message {
   margin: 0;
+  overflow-wrap: anywhere;
   color: color('danger');
 }

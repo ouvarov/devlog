@@ -1,0 +1,52 @@
+@use 'tokens' as *;
+
+$spinner-size: $indent-4;
+$spin-duration: 0.8s;
+
+.running {
+  display: flex;
+  gap: $indent-2;
+  align-items: center;
+  padding: $indent-3;
+  background: color('surface-muted');
+  border-radius: $radius-control;
+}
+
+.idle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.spinner {
+  width: $spinner-size;
+  height: $spinner-size;
+  border: $border-thick solid color('border');
+  border-top-color: color('accent');
+  border-radius: $radius-pill;
+  animation: spin $spin-duration linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.text {
+  flex: 1;
+  margin: 0;
+}
+
+.elapsed {
+  @include font-size('small');
+
+  color: color('text-muted');
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}

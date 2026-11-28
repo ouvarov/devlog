@@ -12,16 +12,19 @@
 }
 
 .agents {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-4;
   padding: $indent-4;
   background: color('surface');
-  border: 1px dashed color('border');
+  border: 1px solid color('border');
   border-radius: $radius-card;
 }
 
 .agentsTitle {
   @include font-size('heading');
 
-  margin: 0 0 $indent-2;
+  margin: 0;
 }
 
 .note {

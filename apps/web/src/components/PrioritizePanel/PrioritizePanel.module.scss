@@ -1,0 +1,34 @@
+@use 'tokens' as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-3;
+  padding-top: $indent-4;
+  border-top: 1px solid color('border');
+}
+
+.header {
+  display: flex;
+  gap: $indent-3;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  @include font-size('body');
+
+  margin: 0;
+}
+
+.note,
+.hint {
+  @include font-size('small');
+
+  margin: 0;
+  color: color('text-muted');
+}
+
+.hint {
+  color: color('danger');
+}

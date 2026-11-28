@@ -1,0 +1,38 @@
+@use 'tokens' as *;
+
+.provider {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-2;
+  align-items: flex-start;
+}
+
+.note {
+  @include font-size('small');
+
+  margin: 0;
+  color: color('text-muted');
+}
+
+.warning {
+  composes: note;
+  color: color('pending');
+}
+
+.banner {
+  padding: $indent-3;
+  border: 1px solid color('danger');
+  border-radius: $radius-control;
+}
+
+.bannerTitle {
+  margin: 0 0 $indent-1;
+  font-weight: bold;
+  color: color('danger');
+}
+
+.bannerText {
+  @include font-size('small');
+
+  margin: 0;
+}

@@ -1,0 +1,85 @@
+@use 'tokens' as *;
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-3;
+}
+
+.banner {
+  padding: $indent-3;
+  border: 1px solid color('border');
+  border-radius: $radius-control;
+}
+
+.skipped {
+  composes: banner;
+  border-color: color('info');
+}
+
+.fallback {
+  composes: banner;
+  border-color: color('pending');
+}
+
+.bannerTitle {
+  margin: 0 0 $indent-1;
+  font-weight: bold;
+}
+
+.bannerText {
+  @include font-size('small');
+
+  margin: 0;
+}
+
+.heading {
+  @include font-size('small');
+
+  margin: 0 0 $indent-2;
+  color: color('text-muted');
+  text-transform: uppercase;
+}
+
+.focus {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-3;
+  margin: 0;
+  padding-left: $indent-4;
+}
+
+.focusItem {
+  overflow-wrap: anywhere;
+}
+
+.focusTitle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $indent-2;
+  align-items: center;
+  margin: 0;
+}
+
+.reason {
+  @include font-size('small');
+
+  margin: $indent-1 0 0;
+  color: color('text-muted');
+}
+
+.later {
+  @include font-size('small');
+
+  display: flex;
+  flex-direction: column;
+  gap: $indent-1;
+  margin: 0;
+  padding-left: $indent-4;
+  overflow-wrap: anywhere;
+}
+
+.summary {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
