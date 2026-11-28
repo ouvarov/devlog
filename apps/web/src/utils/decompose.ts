@@ -24,10 +24,10 @@ const NOT_RETRYABLE_CODES: readonly ApiErrorCode[] = [
   'VALIDATION_FAILED',
 ]
 
-const ERROR_TITLES = {
+const ERROR_TITLES: Partial<Record<ApiErrorCode, string>> = {
   AGENT_FAILED: 'The agent did not propose valid subtasks',
   LLM_NOT_CONFIGURED: 'No LLM is configured',
-} satisfies Partial<Record<ApiErrorCode, string>>
+}
 
 const DEFAULT_ERROR_TITLE = 'The agent could not run'
 
@@ -109,8 +109,7 @@ const getBatchErrors = (error: unknown, items: readonly ProposalItemDraft[]): Pr
 }
 
 const getErrorTitle = (code: ApiErrorCode | null): string =>
-  (code && code in ERROR_TITLES ? ERROR_TITLES[code as keyof typeof ERROR_TITLES] : undefined) ??
-  DEFAULT_ERROR_TITLE
+  (code ? ERROR_TITLES[code] : undefined) ?? DEFAULT_ERROR_TITLE
 
 const getDecomposeErrorView = (error: unknown): DecomposeErrorView => {
   if (!(error instanceof ApiRequestError)) {
