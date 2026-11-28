@@ -48,6 +48,7 @@ const DecomposeProposalItem: FC<DecomposeProposalItemProps> = ({
             id={`${itemId}-include`}
             type="checkbox"
             checked={isIncluded}
+            autoFocus={position === 1}
             onChange={(event) => onChange({ isIncluded: event.target.checked })}
           />
           <label htmlFor={`${itemId}-include`}>Create subtask {position}</label>

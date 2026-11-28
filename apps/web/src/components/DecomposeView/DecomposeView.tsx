@@ -73,7 +73,9 @@ const DecomposeView: FC<DecomposeViewProps> = ({
 
       {state.phase === 'running' && (
         <div className={styles.actions}>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button autoFocus onClick={onClose}>
+            Cancel
+          </Button>
         </div>
       )}
 
