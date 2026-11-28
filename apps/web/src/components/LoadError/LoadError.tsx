@@ -8,7 +8,7 @@ import styles from './LoadError.module.scss'
 
 type LoadErrorProps = {
   error: Error
-  onRetry: () => void
+  onRetry?: () => void
 }
 
 const getLoadErrorMessage = (error: Error): string =>
@@ -19,7 +19,7 @@ const getLoadErrorMessage = (error: Error): string =>
 const LoadError: FC<LoadErrorProps> = ({ error, onRetry }) => (
   <div className={styles.error} role="alert">
     <p className={styles.message}>{getLoadErrorMessage(error)}</p>
-    <Button onClick={onRetry}>Retry</Button>
+    {onRetry && <Button onClick={onRetry}>Retry</Button>}
   </div>
 )
 

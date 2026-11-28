@@ -14,7 +14,9 @@ const usePrioritize = () => {
 
   return useMutation({
     mutationFn: runAndStamp,
-    onError: (error) => invalidateAgentsIfNotConfigured(queryClient, error),
+    onError: (error) => {
+      void invalidateAgentsIfNotConfigured(queryClient, error)
+    },
   })
 }
 

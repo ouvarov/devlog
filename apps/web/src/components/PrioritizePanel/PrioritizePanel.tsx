@@ -52,7 +52,9 @@ const PrioritizePanel: FC = () => {
         </p>
       )}
       {prioritize.isPending && <AgentRunning elapsedSeconds={elapsedSeconds} maxSteps={maxSteps} />}
-      {prioritize.error && <LoadError error={prioritize.error} onRetry={handleRun} />}
+      {prioritize.error && (
+        <LoadError error={prioritize.error} onRetry={isNotConfigured ? undefined : handleRun} />
+      )}
       {prioritize.data && <PrioritizeRunView run={prioritize.data} maxSteps={maxSteps} />}
     </section>
   )
