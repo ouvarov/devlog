@@ -61,18 +61,6 @@
   margin: 0;
 }
 
-.link {
-  color: color('text');
-
-  &:hover {
-    color: color('accent');
-  }
-}
-
-.missing {
-  color: color('text-muted');
-}
-
 .reason {
   @include font-size('small');
 

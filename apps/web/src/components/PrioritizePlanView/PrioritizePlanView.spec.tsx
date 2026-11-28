@@ -13,10 +13,10 @@ describe('PrioritizePlanView', () => {
       <PrioritizePlanView
         banner={null}
         focus={[
-          { taskId: 1, reason: 'In progress', task: CI_TASK },
-          { taskId: 9, reason: 'Was deleted', task: null },
+          { taskId: 1, reason: 'In progress', taskRef: { kind: 'found', task: CI_TASK } },
+          { taskId: 9, reason: 'Was deleted', taskRef: { kind: 'missing' } },
         ]}
-        later={[{ taskId: 8, task: null }]}
+        later={[{ taskId: 8, taskRef: { kind: 'missing' } }]}
         summary="CI first."
       />,
     )
@@ -28,11 +28,26 @@ describe('PrioritizePlanView', () => {
     expect(markup).not.toContain('href="/tasks/8"')
   })
 
+  it('shows a placeholder, not #id, while a task is loading', () => {
+    const markup = renderToStaticMarkup(
+      <PrioritizePlanView
+        banner={null}
+        focus={[{ taskId: 14, reason: 'Subtask', taskRef: { kind: 'loading' } }]}
+        later={[{ taskId: 15, taskRef: { kind: 'failed' } }]}
+        summary="CI first."
+      />,
+    )
+
+    expect(markup).toContain('Loading task…')
+    expect(markup).not.toContain('#14')
+    expect(markup).toContain('#15 (could not load)')
+  })
+
   it('renders reasons and the summary with HTML as plain text', () => {
     const markup = renderToStaticMarkup(
       <PrioritizePlanView
         banner={null}
-        focus={[{ taskId: 1, reason: '<b>x</b>', task: CI_TASK }]}
+        focus={[{ taskId: 1, reason: '<b>x</b>', taskRef: { kind: 'found', task: CI_TASK } }]}
         later={[]}
         summary="<img src=x onerror=alert(1)>"
       />,

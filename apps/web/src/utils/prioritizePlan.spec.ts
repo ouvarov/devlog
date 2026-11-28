@@ -7,14 +7,16 @@ import {
   type TaskView,
 } from '@devlog/shared'
 
+import { ApiRequestError } from '@/api/client'
 import { LLM_META } from '@/fixtures/prioritizeResponse'
+import type { TaskLookup } from '@/types/prioritizePlan'
 
 import {
   getMaxSteps,
   getPlanBanner,
+  getPlanTaskRefs,
   resolveFocus,
   resolveLater,
-  toKnownTasks,
 } from './prioritizePlan'
 
 const fallbackMeta = (changes: Partial<AgentMeta>): AgentMeta => ({
@@ -68,29 +70,81 @@ describe('getPlanBanner', () => {
   })
 })
 
-describe('resolveFocus and resolveLater', () => {
-  const known = toKnownTasks([task(1, 'Set up CI'), task(2, 'Fix flaky test')])
+const lookup = (changes: Partial<TaskLookup>): TaskLookup => ({
+  data: undefined,
+  isPending: false,
+  error: null,
+  ...changes,
+})
 
-  it('attaches the known task to each focus item and keeps the order', () => {
+const failedWith = (status: number) =>
+  lookup({ error: new ApiRequestError({ message: 'Request failed', status }) })
+
+describe('getPlanTaskRefs', () => {
+  const listed = [task(1, 'Set up CI'), task(2, 'Fix flaky test')]
+
+  it('finds listed tasks without a lookup', () => {
+    const refs = getPlanTaskRefs([2], listed, new Map())
+
+    expect(refs.get(2)).toMatchObject({ kind: 'found', task: { title: 'Fix flaky test' } })
+  })
+
+  it('is loading while the list has not arrived', () => {
+    expect(getPlanTaskRefs([1], undefined, new Map()).get(1)).toEqual({ kind: 'loading' })
+  })
+
+  it('is loading while the detail of an unlisted task is pending', () => {
+    const refs = getPlanTaskRefs([14], listed, new Map([[14, lookup({ isPending: true })]]))
+
+    expect(refs.get(14)).toEqual({ kind: 'loading' })
+  })
+
+  it('finds an unlisted task once its detail arrives', () => {
+    const refs = getPlanTaskRefs([14], listed, new Map([[14, lookup({ data: task(14, 'Sub') })]]))
+
+    expect(refs.get(14)).toMatchObject({ kind: 'found', task: { title: 'Sub' } })
+  })
+
+  it('is missing only when the detail answers 404', () => {
+    const refs = getPlanTaskRefs(
+      [9, 10],
+      listed,
+      new Map([
+        [9, failedWith(404)],
+        [10, failedWith(500)],
+      ]),
+    )
+
+    expect(refs.get(9)).toEqual({ kind: 'missing' })
+    expect(refs.get(10)).toEqual({ kind: 'failed' })
+  })
+})
+
+describe('resolveFocus and resolveLater', () => {
+  const refs = getPlanTaskRefs(
+    [1, 2, 9],
+    [task(1, 'Set up CI'), task(2, 'Fix flaky test')],
+    new Map([[9, failedWith(404)]]),
+  )
+
+  it('attaches the task ref to each focus item and keeps the order', () => {
     const focus = resolveFocus(
       [
         { taskId: 2, reason: 'Blocks merges' },
         { taskId: 1, reason: 'In progress' },
       ],
-      known,
+      refs,
     )
 
-    expect(focus.map(({ task }) => task?.title)).toEqual(['Fix flaky test', 'Set up CI'])
-    expect(focus[0]?.reason).toBe('Blocks merges')
+    expect(focus.map(({ taskRef }) => taskRef.kind)).toEqual(['found', 'found'])
+    expect(focus[0]).toMatchObject({ reason: 'Blocks merges', taskRef: { task: { id: 2 } } })
   })
 
-  it('leaves the task empty for an id that no longer exists', () => {
-    expect(resolveFocus([{ taskId: 9, reason: 'Gone' }], known)).toEqual([
-      { taskId: 9, reason: 'Gone', task: null },
-    ])
-    expect(resolveLater([1, 9], known).map(({ task }) => task?.title ?? null)).toEqual([
-      'Set up CI',
-      null,
+  it('keeps a deleted task as missing and an unknown id as loading', () => {
+    expect(resolveLater([1, 9, 7], refs).map(({ taskRef }) => taskRef.kind)).toEqual([
+      'found',
+      'missing',
+      'loading',
     ])
   })
 })

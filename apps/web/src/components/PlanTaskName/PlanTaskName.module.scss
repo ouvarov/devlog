@@ -1,0 +1,22 @@
+@use 'tokens' as *;
+
+.link {
+  color: color('text');
+
+  &:hover {
+    color: color('accent');
+  }
+}
+
+.missing {
+  color: color('text-muted');
+}
+
+.loading {
+  composes: missing;
+  font-style: italic;
+}
+
+.failed {
+  color: color('danger');
+}

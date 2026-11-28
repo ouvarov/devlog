@@ -1,4 +1,4 @@
-import type { PrioritizeResponse, TaskPriority, TaskStatus } from '@devlog/shared'
+import type { PrioritizeResponse, TaskPriority, TaskStatus, TaskView } from '@devlog/shared'
 
 type PrioritizeRun = {
   response: PrioritizeResponse
@@ -12,17 +12,28 @@ type PlanTask = {
   priority: TaskPriority
 }
 
-type KnownTasks = ReadonlyMap<number, PlanTask>
+type PlanTaskRef =
+  { kind: 'found'; task: PlanTask } | { kind: 'loading' } | { kind: 'missing' } | { kind: 'failed' }
+
+type UnresolvedPlanTaskKind = Exclude<PlanTaskRef['kind'], 'found'>
+
+type PlanTaskRefs = ReadonlyMap<number, PlanTaskRef>
+
+type TaskLookup = {
+  data: TaskView | undefined
+  isPending: boolean
+  error: Error | null
+}
 
 type ResolvedFocusItem = {
   taskId: number
   reason: string
-  task: PlanTask | null
+  taskRef: PlanTaskRef
 }
 
 type ResolvedLaterItem = {
   taskId: number
-  task: PlanTask | null
+  taskRef: PlanTaskRef
 }
 
 type PlanBanner = {
@@ -32,10 +43,13 @@ type PlanBanner = {
 }
 
 export type {
-  KnownTasks,
   PlanBanner,
   PlanTask,
+  PlanTaskRef,
+  PlanTaskRefs,
   PrioritizeRun,
   ResolvedFocusItem,
   ResolvedLaterItem,
+  TaskLookup,
+  UnresolvedPlanTaskKind,
 }

@@ -1,15 +1,21 @@
 import type { AgentMeta, AgentName, AgentsInfo, PlanFocusItem, TaskView } from '@devlog/shared'
 
+import { ApiRequestError } from '@/api/client'
 import { FALLBACK_REASON_MESSAGES } from '@/config/agentDisplay'
 import type {
-  KnownTasks,
   PlanBanner,
+  PlanTask,
+  PlanTaskRef,
+  PlanTaskRefs,
   ResolvedFocusItem,
   ResolvedLaterItem,
+  TaskLookup,
 } from '@/types/prioritizePlan'
 
 const FALLBACK_PLAN_NOTE = 'The plan below comes from the formula: priority, age and status.'
 const UNKNOWN_FALLBACK_MESSAGE = 'The model did not produce a plan.'
+const NOT_FOUND_STATUS = 404
+const LOADING_REF: PlanTaskRef = { kind: 'loading' }
 
 const getPlanBanner = ({ stoppedBy, source, fallbackReason }: AgentMeta): PlanBanner | null => {
   if (stoppedBy === 'skipped') {
@@ -32,16 +38,60 @@ const getPlanBanner = ({ stoppedBy, source, fallbackReason }: AgentMeta): PlanBa
   return null
 }
 
-const toKnownTasks = (tasks: readonly TaskView[]): KnownTasks =>
-  new Map(tasks.map(({ id, title, status, priority }) => [id, { id, title, status, priority }]))
+const toPlanTask = ({ id, title, status, priority }: TaskView): PlanTask => ({
+  id,
+  title,
+  status,
+  priority,
+})
 
-const resolveFocus = (focus: readonly PlanFocusItem[], known: KnownTasks): ResolvedFocusItem[] =>
-  focus.map(({ taskId, reason }) => ({ taskId, reason, task: known.get(taskId) ?? null }))
+const getUnlistedIds = (
+  taskIds: readonly number[],
+  listedTasks: readonly TaskView[] | undefined,
+  hasListFailed: boolean,
+): number[] => {
+  if (listedTasks) {
+    const listedIds = new Set(listedTasks.map(({ id }) => id))
+    return taskIds.filter((id) => !listedIds.has(id))
+  }
+  return hasListFailed ? [...taskIds] : []
+}
 
-const resolveLater = (later: readonly number[], known: KnownTasks): ResolvedLaterItem[] =>
-  later.map((taskId) => ({ taskId, task: known.get(taskId) ?? null }))
+const isNotFound = (error: Error): boolean =>
+  error instanceof ApiRequestError && error.status === NOT_FOUND_STATUS
+
+const toPlanTaskRef = (lookup: TaskLookup | undefined): PlanTaskRef => {
+  if (!lookup) return LOADING_REF
+  if (lookup.data) return { kind: 'found', task: toPlanTask(lookup.data) }
+  if (lookup.isPending) return LOADING_REF
+  if (lookup.error && isNotFound(lookup.error)) return { kind: 'missing' }
+  return { kind: 'failed' }
+}
+
+const getPlanTaskRefs = (
+  taskIds: readonly number[],
+  listedTasks: readonly TaskView[] | undefined,
+  lookups: ReadonlyMap<number, TaskLookup>,
+): PlanTaskRefs => {
+  const listed = new Map(listedTasks?.map((task) => [task.id, task]))
+  return new Map(
+    taskIds.map((id) => {
+      const listedTask = listed.get(id)
+      const taskRef: PlanTaskRef = listedTask
+        ? { kind: 'found', task: toPlanTask(listedTask) }
+        : toPlanTaskRef(lookups.get(id))
+      return [id, taskRef]
+    }),
+  )
+}
+
+const resolveFocus = (focus: readonly PlanFocusItem[], refs: PlanTaskRefs): ResolvedFocusItem[] =>
+  focus.map(({ taskId, reason }) => ({ taskId, reason, taskRef: refs.get(taskId) ?? LOADING_REF }))
+
+const resolveLater = (later: readonly number[], refs: PlanTaskRefs): ResolvedLaterItem[] =>
+  later.map((taskId) => ({ taskId, taskRef: refs.get(taskId) ?? LOADING_REF }))
 
 const getMaxSteps = (info: AgentsInfo | undefined, name: AgentName): number | null =>
   info?.agents.find((agent) => agent.name === name)?.maxSteps ?? null
 
-export { getMaxSteps, getPlanBanner, resolveFocus, resolveLater, toKnownTasks }
+export { getMaxSteps, getPlanBanner, getPlanTaskRefs, getUnlistedIds, resolveFocus, resolveLater }
