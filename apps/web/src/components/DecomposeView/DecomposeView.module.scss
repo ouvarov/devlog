@@ -1,9 +1,17 @@
 @use 'tokens' as *;
 
-.view {
+.view,
+.phase {
   display: flex;
   flex-direction: column;
   gap: $indent-4;
+}
+
+.phase {
+  // focused only to move screen readers to the new phase; it is not a control
+  &:focus {
+    outline: none;
+  }
 }
 
 .run {

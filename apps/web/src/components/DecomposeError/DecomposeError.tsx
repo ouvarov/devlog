@@ -24,11 +24,11 @@ const DecomposeError: FC<DecomposeErrorProps> = ({ error, onRetry, onClose }) =>
     )}
     {error.trace && <AgentTrace steps={error.trace} />}
     <div className={styles.actions}>
-      <Button autoFocus={!error.canRetry} onClick={onClose}>
+      <Button data-phase-focus={!error.canRetry || undefined} onClick={onClose}>
         Close
       </Button>
       {error.canRetry && (
-        <Button variant="primary" autoFocus onClick={onRetry}>
+        <Button variant="primary" data-phase-focus onClick={onRetry}>
           Try again
         </Button>
       )}

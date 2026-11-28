@@ -67,7 +67,7 @@ const DecomposeProposal: FC<DecomposeProposalProps> = ({
         )}
 
         {errors?.message && (
-          <p className={styles.error} role="alert">
+          <p className={styles.error} role="alert" tabIndex={-1}>
             {errors.message}
           </p>
         )}

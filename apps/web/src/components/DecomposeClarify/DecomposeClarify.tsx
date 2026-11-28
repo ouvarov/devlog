@@ -62,7 +62,6 @@ const DecomposeClarify: FC<DecomposeClarifyProps> = ({
               rows={2}
               required
               maxLength={CLARIFY_ANSWER_MAX_LENGTH}
-              autoFocus={index === 0}
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? getErrorId(index) : undefined}
             />
@@ -76,7 +75,7 @@ const DecomposeClarify: FC<DecomposeClarifyProps> = ({
       })}
 
       {errors?.message && (
-        <p className={styles.error} role="alert">
+        <p className={styles.error} role="alert" tabIndex={-1}>
           {errors.message}
         </p>
       )}

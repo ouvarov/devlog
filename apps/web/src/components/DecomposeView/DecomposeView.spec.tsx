@@ -50,6 +50,12 @@ describe('DecomposeView', () => {
     expect(markup).toContain('LLM_PROVIDER=mock')
   })
 
+  it('wraps each phase in a focusable group named after the phase', () => {
+    expect(renderState(clarify)).toMatch(
+      /<div[^>]*tabindex="-1"[^>]*role="group"[^>]*aria-label="Questions from the agent"/,
+    )
+  })
+
   it('announces the run in the live region while running', () => {
     expect(renderState(running)).toMatch(
       /role="status"[^>]*>Running the agent, up to 6 steps…<\/p>/,
@@ -130,7 +136,7 @@ describe('DecomposeView', () => {
     const markup = renderState(failed)
 
     expect(markup).toContain('Title is taken')
-    expect(markup).toMatch(/role="alert">Fix the marked subtasks and try again\./)
+    expect(markup).toMatch(/role="alert"[^>]*>Fix the marked subtasks and try again\./)
   })
 
   it('locks the proposal while creating', () => {
@@ -141,7 +147,10 @@ describe('DecomposeView', () => {
   })
 
   it('reports how many subtasks were created', () => {
-    expect(renderState({ phase: 'done', createdCount: 2 })).toContain('2 subtasks created.')
+    const markup = renderState({ phase: 'done', createdCount: 2 })
+
+    expect(markup).toContain('2 subtasks created.')
+    expect(markup).toMatch(/<button[^>]*data-phase-focus="true"[^>]*>Close/)
   })
 
   it('shows a failed run with its trace and Try again', () => {
@@ -161,6 +170,8 @@ describe('DecomposeView', () => {
     expect(markup).toContain('Show trace (1 step)')
     expect(markup).toContain('Try again')
     expect(markup).toContain('Nothing was created.')
+    expect(markup).toMatch(/<button[^>]*data-phase-focus="true"[^>]*>Try again/)
+    expect(markup.match(/data-phase-focus/g)).toHaveLength(1)
   })
 
   it('offers no Try again when retrying cannot help', () => {
@@ -173,6 +184,7 @@ describe('DecomposeView', () => {
     expect(markup).toContain('No LLM')
     expect(markup).not.toContain('Try again')
     expect(markup).not.toContain('recorded any step')
+    expect(markup).toMatch(/<button[^>]*data-phase-focus="true"[^>]*>Close/)
   })
 
   it('says so when the agent failed before its first step', () => {
