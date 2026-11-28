@@ -25,7 +25,7 @@ const NOT_RETRYABLE_CODES: readonly ApiErrorCode[] = [
 ]
 
 const ERROR_TITLES: Partial<Record<ApiErrorCode, string>> = {
-  AGENT_FAILED: 'The agent did not propose valid subtasks',
+  AGENT_FAILED: 'The agent did not finish',
   LLM_NOT_CONFIGURED: 'No LLM is configured',
 }
 
@@ -120,7 +120,7 @@ const getDecomposeErrorView = (error: unknown): DecomposeErrorView => {
     return {
       title: DEFAULT_ERROR_TITLE,
       message: GENERIC_SUBMIT_MESSAGE,
-      trace: [],
+      trace: null,
       canRetry: true,
     }
   }
@@ -128,7 +128,7 @@ const getDecomposeErrorView = (error: unknown): DecomposeErrorView => {
   return {
     title: getErrorTitle(error.code),
     message: error.message,
-    trace: error.trace ?? [],
+    trace: error.trace ?? null,
     canRetry: error.code === null || !NOT_RETRYABLE_CODES.includes(error.code),
   }
 }

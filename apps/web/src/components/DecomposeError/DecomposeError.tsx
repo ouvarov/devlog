@@ -19,7 +19,10 @@ const DecomposeError: FC<DecomposeErrorProps> = ({ error, onRetry, onClose }) =>
       <p className={styles.message}>{error.message}</p>
       <p className={styles.note}>Nothing was created.</p>
     </div>
-    <AgentTrace steps={error.trace} />
+    {error.trace?.length === 0 && (
+      <p className={styles.note}>The agent failed before it recorded any step.</p>
+    )}
+    {error.trace && <AgentTrace steps={error.trace} />}
     <div className={styles.actions}>
       <Button autoFocus={!error.canRetry} onClick={onClose}>
         Close

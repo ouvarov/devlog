@@ -155,7 +155,7 @@ describe('getDecomposeErrorView', () => {
     })
 
     expect(getDecomposeErrorView(error)).toEqual({
-      title: 'The agent did not propose valid subtasks',
+      title: 'The agent did not finish',
       message: 'Step limit reached without valid subtasks',
       trace: [SEARCH_STEP],
       canRetry: true,
@@ -178,6 +178,6 @@ describe('getDecomposeErrorView', () => {
   it('offers a retry when the API is offline', () => {
     const offline = new ApiRequestError({ message: 'Cannot reach the API', status: null })
 
-    expect(getDecomposeErrorView(offline)).toMatchObject({ canRetry: true, trace: [] })
+    expect(getDecomposeErrorView(offline)).toMatchObject({ canRetry: true, trace: null })
   })
 })

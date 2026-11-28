@@ -134,7 +134,7 @@ describe('DecomposeView', () => {
       phase: 'error',
       request: { taskId: 4 },
       error: {
-        title: 'The agent did not propose valid subtasks',
+        title: 'The agent did not finish',
         message: 'Step limit reached',
         trace: [SEARCH_STEP],
         canRetry: true,
@@ -152,10 +152,21 @@ describe('DecomposeView', () => {
     const markup = renderState({
       phase: 'error',
       request: { taskId: 4 },
-      error: { title: 'No LLM is configured', message: 'No LLM', trace: [], canRetry: false },
+      error: { title: 'No LLM is configured', message: 'No LLM', trace: null, canRetry: false },
     })
 
     expect(markup).toContain('No LLM')
     expect(markup).not.toContain('Try again')
+    expect(markup).not.toContain('recorded any step')
+  })
+
+  it('says so when the agent failed before its first step', () => {
+    const markup = renderState({
+      phase: 'error',
+      request: { taskId: 4 },
+      error: { title: 'Failed', message: 'The model call failed', trace: [], canRetry: true },
+    })
+
+    expect(markup).toContain('The agent failed before it recorded any step.')
   })
 })

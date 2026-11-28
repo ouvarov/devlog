@@ -8,7 +8,7 @@ import { IDLE_STATE, decomposeReducer, toDraftItems } from './decomposeState'
 const START_REQUEST = { taskId: 4 }
 const STARTED_AT = 1000
 const ERROR: DecomposeErrorView = {
-  title: 'The agent did not propose valid subtasks',
+  title: 'The agent did not finish',
   message: 'Step limit',
   trace: [],
   canRetry: true,

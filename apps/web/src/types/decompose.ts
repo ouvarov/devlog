@@ -40,7 +40,7 @@ type ClarifyErrors = {
 type DecomposeErrorView = {
   title: string
   message: string
-  trace: AgentTraceStep[]
+  trace: AgentTraceStep[] | null
   canRetry: boolean
 }
 
