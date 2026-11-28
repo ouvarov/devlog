@@ -371,6 +371,15 @@ describe('AgentsController without an LLM key (e2e)', () => {
     expect(ApiErrorSchema.parse(response.body).code).toBe('LLM_NOT_CONFIGURED')
   })
 
+  it('answers 503 for decompose before it looks the task up', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/agents/decompose')
+      .send({ taskId: MISSING_TASK_ID })
+      .expect(503)
+
+    expect(ApiErrorSchema.parse(response.body).code).toBe('LLM_NOT_CONFIGURED')
+  })
+
   it('answers 503 LLM_NOT_CONFIGURED for prioritize', async () => {
     const response = await request(app.getHttpServer())
       .post('/agents/prioritize')
