@@ -3,17 +3,21 @@ import type { FC } from 'react'
 import styles from './AgentRunning.module.scss'
 
 type AgentRunningProps = {
+  isRunning: boolean
   elapsedSeconds: number
   maxSteps: number | null
 }
 
-const AgentRunning: FC<AgentRunningProps> = ({ elapsedSeconds, maxSteps }) => (
-  <div className={styles.running}>
-    <span className={styles.spinner} aria-hidden="true" />
+const getRunningText = (maxSteps: number | null): string =>
+  maxSteps === null ? 'Running the agent…' : `Running the agent, up to ${maxSteps} steps…`
+
+const AgentRunning: FC<AgentRunningProps> = ({ isRunning, elapsedSeconds, maxSteps }) => (
+  <div className={isRunning ? styles.running : styles.idle}>
+    {isRunning && <span className={styles.spinner} aria-hidden="true" />}
     <p className={styles.text} role="status">
-      Running the agent{maxSteps === null ? '' : `, up to ${maxSteps} steps`}…
+      {isRunning ? getRunningText(maxSteps) : ''}
     </p>
-    <span className={styles.elapsed}>{elapsedSeconds} s</span>
+    {isRunning && <span className={styles.elapsed}>{elapsedSeconds} s</span>}
   </div>
 )
 

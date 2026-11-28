@@ -13,6 +13,7 @@ describe('AgentTrace', () => {
     const markup = renderToStaticMarkup(<AgentTrace steps={trace} />)
 
     expect(markup).toContain('aria-expanded="false"')
+    expect(markup).not.toContain('aria-controls')
     expect(markup).toContain('Show trace (3 steps)')
     expect(markup).not.toContain('submit_plan')
   })

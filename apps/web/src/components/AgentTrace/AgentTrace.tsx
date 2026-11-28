@@ -25,7 +25,7 @@ const AgentTrace: FC<AgentTraceProps> = ({ steps }) => {
       <Button
         variant="ghost"
         aria-expanded={isExpanded}
-        aria-controls={stepsId}
+        aria-controls={isExpanded ? stepsId : undefined}
         onClick={() => setIsExpanded((wasExpanded) => !wasExpanded)}
       >
         {isExpanded ? 'Hide' : 'Show'} trace ({pluralize(steps.length, 'step')})

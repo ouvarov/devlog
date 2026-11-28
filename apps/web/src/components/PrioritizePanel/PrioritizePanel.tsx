@@ -51,7 +51,11 @@ const PrioritizePanel: FC = () => {
           Set an LLM key or LLM_PROVIDER=mock to run agents.
         </p>
       )}
-      {prioritize.isPending && <AgentRunning elapsedSeconds={elapsedSeconds} maxSteps={maxSteps} />}
+      <AgentRunning
+        isRunning={prioritize.isPending}
+        elapsedSeconds={elapsedSeconds}
+        maxSteps={maxSteps}
+      />
       {prioritize.error && (
         <LoadError error={prioritize.error} onRetry={isNotConfigured ? undefined : handleRun} />
       )}
