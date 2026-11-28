@@ -72,7 +72,7 @@ const runScriptWithAsk = (script: MockScript) => {
     instructions: 'Test agent',
     prompt: 'Go',
     tools: toolsWithAsk,
-    terminalToolNames: ['ask', 'submit'],
+    terminalToolNames: ['submit', 'ask'],
     maxSteps: MAX_STEPS,
   })
   return { model, run }
@@ -243,6 +243,20 @@ describe('runToolAgent', () => {
         stepCount: 2,
       })
       expect(model.doGenerateCalls).toHaveLength(2)
+    })
+
+    it('picks the first terminal tool in the given order when one step has two accepted calls', async () => {
+      const askThenSubmit = toolCallStep('ask', { question: 'Which part first?' })
+      const { run } = runScriptWithAsk([
+        {
+          ...askThenSubmit,
+          content: [...askThenSubmit.content, ...toolCallStep('submit', { answer: 'ok' }).content],
+        },
+      ])
+
+      const result = await run
+
+      expect(result).toMatchObject({ status: 'submitted', toolName: 'submit', submission: 'ok' })
     })
 
     it('marks a rejected call of any terminal tool in the trace and goes on', async () => {

@@ -276,6 +276,24 @@ describe('POST /agents/decompose (e2e)', () => {
       expect(response.trace[1]?.toolCalls[0]?.isRejectedSubmit).toBe(false)
     })
 
+    it('returns the proposal when one step both asks and submits valid subtasks', async () => {
+      const askStep = toolCallStep('ask_clarification', { questions: ['Which pages?'] })
+      script = [
+        (options) => {
+          const submitStep = submitPartsOfTaskTitle(options)
+          return { ...submitStep, content: [...askStep.content, ...submitStep.content] }
+        },
+      ]
+
+      const response = await decompose({ taskId: taskIds.vague })
+
+      expect(response.kind).toBe('proposal')
+      expect(response.trace[0]?.toolCalls.map(({ toolName }) => toolName)).toEqual([
+        'ask_clarification',
+        'submit_subtasks',
+      ])
+    })
+
     it('answers 422 AGENT_FAILED with the trace when every submit is invalid', async () => {
       script = [invalidSubmit(['Only one'])]
       const taskCountBefore = await countTasks()

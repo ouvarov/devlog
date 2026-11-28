@@ -41,19 +41,24 @@ type ToolAgentRun = ToolAgentOutcome & {
 
 type AcceptedTerminalCall = { toolName: string; value: unknown }
 
+// Parallel calls can finish in any order, so when one step has several accepted terminal
+// calls the order of terminalToolNames decides, not the order of the results.
 const findAcceptedTerminalCall = <TOOLS extends ToolSet>(
   step: StepResult<TOOLS> | undefined,
-  terminalToolNames: ReadonlySet<string>,
+  terminalToolNames: readonly string[],
 ): AcceptedTerminalCall | undefined => {
   if (!step) return undefined
 
+  const acceptedValues = new Map<string, unknown>()
   for (const { toolName, output } of step.toolResults) {
     const terminalOutput: unknown = output
-    if (terminalToolNames.has(toolName) && isAcceptedSubmit(terminalOutput)) {
-      return { toolName, value: terminalOutput.value }
+    if (!acceptedValues.has(toolName) && isAcceptedSubmit(terminalOutput)) {
+      acceptedValues.set(toolName, terminalOutput.value)
     }
   }
-  return undefined
+
+  const toolName = terminalToolNames.find((name) => acceptedValues.has(name))
+  return toolName === undefined ? undefined : { toolName, value: acceptedValues.get(toolName) }
 }
 
 const sumUsage = <TOOLS extends ToolSet>(steps: readonly StepResult<TOOLS>[]): AgentUsage =>
@@ -82,7 +87,7 @@ const runToolAgent = async <TOOLS extends ToolSet>(
   })
 
   const isTerminalCallAccepted: StopCondition<TOOLS> = ({ steps: finishedSteps }) =>
-    findAcceptedTerminalCall(finishedSteps.at(-1), terminalToolNameSet) !== undefined
+    findAcceptedTerminalCall(finishedSteps.at(-1), terminalToolNames) !== undefined
 
   try {
     await generateText({
@@ -107,7 +112,7 @@ const runToolAgent = async <TOOLS extends ToolSet>(
     return finish({ status: 'failed', failure: classifyLlmError(error), error })
   }
 
-  const accepted = findAcceptedTerminalCall(steps.at(-1), terminalToolNameSet)
+  const accepted = findAcceptedTerminalCall(steps.at(-1), terminalToolNames)
   if (accepted) {
     return finish({ status: 'submitted', toolName: accepted.toolName, submission: accepted.value })
   }

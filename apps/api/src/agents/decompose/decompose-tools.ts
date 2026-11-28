@@ -70,7 +70,7 @@ const toSearchRow = (task: TaskView): SearchRow => ({
 })
 
 const terminalToolNamesFor = (mode: DecomposeMode): string[] =>
-  mode === 'may-ask' ? [ASK_CLARIFICATION_TOOL, SUBMIT_SUBTASKS_TOOL] : [SUBMIT_SUBTASKS_TOOL]
+  mode === 'may-ask' ? [SUBMIT_SUBTASKS_TOOL, ASK_CLARIFICATION_TOOL] : [SUBMIT_SUBTASKS_TOOL]
 
 const createDecomposeTools = (
   tasksReader: TasksReader,

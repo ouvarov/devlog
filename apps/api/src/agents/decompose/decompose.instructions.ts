@@ -8,6 +8,7 @@ How to work:
 - Otherwise call submit_subtasks with:
   - items: 3 to 8 subtasks, in the order they should be done. Each has a short concrete title (at most 200 characters), an optional description of what done means, a priority and a status.
   - assumptions: what you assumed where the task was unclear (at most 5, each at most 300 characters). If the user asked for no questions, list at least one.
+- Call exactly one of ask_clarification or submit_subtasks, alone in its step.
 - Status of each item: todo, unless the user said that this work has already started (in-progress) or is finished (done).
 - Priority of each item: the priority of the task, unless a subtask is clearly more or less urgent.
 - If a tool answers with accepted: false, read the errors, fix the call and call it again.
