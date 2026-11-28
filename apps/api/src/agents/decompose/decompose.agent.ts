@@ -3,7 +3,9 @@ import { BadRequestException, Inject, Injectable, Logger, NotFoundException } fr
 import {
   type AgentInfo,
   type AgentMeta,
+  type DecomposeClarify,
   DecomposeClarifySchema,
+  type DecomposeProposal,
   DecomposeProposalSchema,
   type DecomposeRequest,
   type DecomposeResponse,
@@ -39,6 +41,9 @@ const DECOMPOSE_AGENT_INFO: AgentInfo = {
   tools: [...DECOMPOSE_TOOL_NAMES],
 }
 
+type DecomposeAnswer =
+  ({ kind: 'clarify' } & DecomposeClarify) | ({ kind: 'proposal' } & DecomposeProposal)
+
 const LLM_FAILURE_MESSAGES: Record<LlmFailure, string> = {
   'rate-limited': 'The model is rate limited; try again in a minute',
   timeout: 'The model did not answer in time',
@@ -52,6 +57,20 @@ const failureMessageOf = (run: ToolAgentRun): string => {
   }
   if (run.status === 'no-submit') return 'The agent stopped without an answer'
   return 'The agent answer did not pass validation'
+}
+
+const answerOf = (run: ToolAgentRun): DecomposeAnswer | undefined => {
+  if (run.status !== 'submitted') return undefined
+
+  if (run.toolName === ASK_CLARIFICATION_TOOL) {
+    const clarify = DecomposeClarifySchema.safeParse(run.submission)
+    return clarify.success ? { kind: 'clarify', ...clarify.data } : undefined
+  }
+  if (run.toolName === SUBMIT_SUBTASKS_TOOL) {
+    const proposal = DecomposeProposalSchema.safeParse(run.submission)
+    return proposal.success ? { kind: 'proposal', ...proposal.data } : undefined
+  }
+  return undefined
 }
 
 const errorDetailOf = (run: ToolAgentRun): string => {
@@ -97,6 +116,15 @@ export class DecomposeAgent {
   }
 
   private toResponse(llm: ConfiguredLlm, run: ToolAgentRun): DecomposeResponse {
+    const answer = answerOf(run)
+    if (!answer) {
+      this.logger.warn(`decompose failed after ${run.stepCount} steps: ${errorDetailOf(run)}`)
+      throw new AgentFailedException(failureMessageOf(run), run.trace)
+    }
+
+    this.logger.log(
+      `decompose answered ${answer.kind} in ${run.stepCount} steps, ${run.durationMs} ms`,
+    )
     const meta: AgentMeta = {
       provider: llm.provider,
       modelId: llm.modelId,
@@ -106,25 +134,7 @@ export class DecomposeAgent {
       usage: run.usage,
       durationMs: run.durationMs,
     }
-
-    if (run.status === 'submitted' && run.toolName === ASK_CLARIFICATION_TOOL) {
-      const clarify = DecomposeClarifySchema.safeParse(run.submission)
-      if (clarify.success) {
-        this.logger.log(`decompose asked ${clarify.data.questions.length} questions`)
-        return { kind: 'clarify', questions: clarify.data.questions, meta, trace: run.trace }
-      }
-    }
-    if (run.status === 'submitted' && run.toolName === SUBMIT_SUBTASKS_TOOL) {
-      const proposal = DecomposeProposalSchema.safeParse(run.submission)
-      if (proposal.success) {
-        this.logger.log(`decompose proposed ${proposal.data.items.length} subtasks`)
-        return { kind: 'proposal', ...proposal.data, meta, trace: run.trace }
-      }
-    }
-
-    const message = failureMessageOf(run)
-    this.logger.warn(`decompose failed after ${run.stepCount} steps: ${errorDetailOf(run)}`)
-    throw new AgentFailedException(message, run.trace)
+    return { ...answer, meta, trace: run.trace }
   }
 }
 
