@@ -26,7 +26,9 @@ const modeLinesOf = (request: DecomposeRequest): string[] => {
       'The user wants no questions. Call submit_subtasks and list at least one assumption you made in assumptions.',
     ]
   }
-  return ['If the task is too vague to split, call ask_clarification. Otherwise call submit_subtasks.']
+  return [
+    'If the task is too vague to split, call ask_clarification. Otherwise call submit_subtasks.',
+  ]
 }
 
 const buildDecomposePrompt = (task: TaskDetail, request: DecomposeRequest): string =>

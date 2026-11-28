@@ -94,7 +94,7 @@ const matchesAnyWord = (words: string[]): SQL | undefined =>
     }),
   )
 
-const completedAtFor =(completion: TaskCompletionChange): SQL | null | undefined => {
+const completedAtFor = (completion: TaskCompletionChange): SQL | null | undefined => {
   if (completion === 'complete') return sql`coalesce(${tasks.completedAt}, now())`
   if (completion === 'reopen') return null
   return undefined

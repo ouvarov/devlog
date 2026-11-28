@@ -20,7 +20,11 @@ import { validateSubtasksProposal } from './validate-subtasks-proposal.js'
 const SEARCH_TASKS_TOOL = 'search_tasks'
 const ASK_CLARIFICATION_TOOL = 'ask_clarification'
 const SUBMIT_SUBTASKS_TOOL = 'submit_subtasks'
-const DECOMPOSE_TOOL_NAMES = [SEARCH_TASKS_TOOL, ASK_CLARIFICATION_TOOL, SUBMIT_SUBTASKS_TOOL] as const
+const DECOMPOSE_TOOL_NAMES = [
+  SEARCH_TASKS_TOOL,
+  ASK_CLARIFICATION_TOOL,
+  SUBMIT_SUBTASKS_TOOL,
+] as const
 const SEARCH_RESULT_LIMIT = 10
 
 type SearchRow = Pick<TaskView, 'id' | 'title' | 'status' | 'priority' | 'parentId'>

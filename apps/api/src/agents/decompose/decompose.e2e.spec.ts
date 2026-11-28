@@ -251,7 +251,10 @@ describe('POST /agents/decompose (e2e)', () => {
           clarification: { questions: ['Which pages?'], answers: ['   '] },
         })
         .expect(400)
-      await api().post('/agents/decompose').send({ taskId: taskIds.vague, mode: 'fast' }).expect(400)
+      await api()
+        .post('/agents/decompose')
+        .send({ taskId: taskIds.vague, mode: 'fast' })
+        .expect(400)
     })
   })
 
@@ -259,22 +262,19 @@ describe('POST /agents/decompose (e2e)', () => {
     it.each([
       ['equal to an existing subtask', ['profile the  SLOW pages', 'Add an index', 'Cache it']],
       ['used twice', ['Add an index', 'add an INDEX', 'Cache it']],
-    ])(
-      'returns the proposal after a rejected submit with a title %s',
-      async (_case, titles) => {
-        script = [invalidSubmit(titles), submitPartsOfTaskTitle]
+    ])('returns the proposal after a rejected submit with a title %s', async (_case, titles) => {
+      script = [invalidSubmit(titles), submitPartsOfTaskTitle]
 
-        const response = await decompose({ taskId: taskIds.vague, skipClarification: true })
+      const response = await decompose({ taskId: taskIds.vague, skipClarification: true })
 
-        expect(response.kind).toBe('proposal')
-        expect(response.meta).toMatchObject({ stoppedBy: 'submitted', steps: 2 })
-        expect(response.trace[0]?.toolCalls[0]).toMatchObject({
-          toolName: 'submit_subtasks',
-          isRejectedSubmit: true,
-        })
-        expect(response.trace[1]?.toolCalls[0]?.isRejectedSubmit).toBe(false)
-      },
-    )
+      expect(response.kind).toBe('proposal')
+      expect(response.meta).toMatchObject({ stoppedBy: 'submitted', steps: 2 })
+      expect(response.trace[0]?.toolCalls[0]).toMatchObject({
+        toolName: 'submit_subtasks',
+        isRejectedSubmit: true,
+      })
+      expect(response.trace[1]?.toolCalls[0]?.isRejectedSubmit).toBe(false)
+    })
 
     it('answers 422 AGENT_FAILED with the trace when every submit is invalid', async () => {
       script = [invalidSubmit(['Only one'])]

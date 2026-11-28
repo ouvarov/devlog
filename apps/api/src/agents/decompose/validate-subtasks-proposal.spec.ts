@@ -14,10 +14,7 @@ const CONTEXT: ProposalContext = {
   mode: 'may-ask',
 }
 
-const proposalWith = (
-  titles: string[],
-  assumptions: string[] = [],
-): SubtasksProposalInput => ({
+const proposalWith = (titles: string[], assumptions: string[] = []): SubtasksProposalInput => ({
   items: titles.map((title) => ({ title })),
   assumptions,
 })
@@ -105,10 +102,13 @@ describe('validateSubtasksProposal', () => {
       ...CONTEXT,
       mode: 'skip-questions',
     })
-    const withAssumption = validateSubtasksProposal(proposalWith(titles, ['Postgres is the bottleneck']), {
-      ...CONTEXT,
-      mode: 'skip-questions',
-    })
+    const withAssumption = validateSubtasksProposal(
+      proposalWith(titles, ['Postgres is the bottleneck']),
+      {
+        ...CONTEXT,
+        mode: 'skip-questions',
+      },
+    )
 
     expect(withoutAssumption).toEqual({
       accepted: false,

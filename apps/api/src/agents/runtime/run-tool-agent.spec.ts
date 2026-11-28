@@ -78,7 +78,7 @@ const runScriptWithAsk = (script: MockScript) => {
   return { model, run }
 }
 
-const abortWhenSignalled =(options: MockCallOptions) =>
+const abortWhenSignalled = (options: MockCallOptions) =>
   new Promise<never>((_resolve, reject) => {
     options.abortSignal?.addEventListener('abort', () => {
       const reason: unknown = options.abortSignal?.reason

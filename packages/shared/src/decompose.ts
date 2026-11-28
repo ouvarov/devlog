@@ -81,7 +81,10 @@ const DecomposeRunSchema = z.object({
 })
 
 const DecomposeResponseSchema = z.discriminatedUnion('kind', [
-  DecomposeClarifySchema.extend({ kind: z.literal('clarify'), ...DecomposeRunSchema.shape }).strict(),
+  DecomposeClarifySchema.extend({
+    kind: z.literal('clarify'),
+    ...DecomposeRunSchema.shape,
+  }).strict(),
   DecomposeProposalSchema.extend({
     kind: z.literal('proposal'),
     ...DecomposeRunSchema.shape,
