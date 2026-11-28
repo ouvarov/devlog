@@ -187,8 +187,8 @@ API не зберігає стан між запитами: клієнт сам 
 
 ## AI-процес
 
-- `AGENT_LOG.md` — підсумок роботи з coding-агентами, пише власник.
-- `docs/agent-log/` — сирі логи по PR: `PR0-research.md`, `PR1.md` … `PR6.md` (промпти дослівно, що повернулось, що було не так і як виправили).
+- [`AGENT_LOG.md`](AGENT_LOG.md) — підсумок роботи з coding-агентами, пише власник.
+- [`docs/agent-log/`](docs/agent-log/) — сирі логи по PR: [PR0-research](docs/agent-log/PR0-research.md), [PR1](docs/agent-log/PR1.md), [PR2](docs/agent-log/PR2.md), [PR3](docs/agent-log/PR3.md), [PR4](docs/agent-log/PR4.md), [PR5](docs/agent-log/PR5.md), [PR6](docs/agent-log/PR6.md). У кожному промпти дослівно, що повернулось, що було не так і як виправили.
 
 ## Рішення і компроміси
 
