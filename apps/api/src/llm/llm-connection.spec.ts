@@ -1,4 +1,6 @@
+import { generateText, tool } from 'ai'
 import { describe, expect, it } from 'vitest'
+import { z } from 'zod'
 
 import { LlmNotConfiguredException } from '../common/errors/llm-not-configured.exception.js'
 import { validateEnv } from '../config/env.schema.js'
@@ -24,6 +26,24 @@ describe('createLlmConnection', () => {
     const model = connection.isConfigured ? connection.model : undefined
     expect(typeof model).toBe('object')
     expect(typeof model === 'object' ? model.provider : undefined).toMatch(/^google/)
+  })
+
+  it.each([
+    ['list_tasks', { list_tasks: tool({ inputSchema: z.object({}) }) }],
+    [
+      'search_tasks',
+      {
+        search_tasks: tool({ inputSchema: z.object({ query: z.string() }) }),
+        submit_subtasks: tool({ inputSchema: z.object({}) }),
+      },
+    ],
+  ])('starts the mock run with %s for the tools the agent offers', async (firstToolName, tools) => {
+    const connection = createLlmConnection(validateEnv({ LLM_PROVIDER: 'mock' }))
+    if (!connection.isConfigured) throw new Error('The mock must be configured')
+
+    const result = await generateText({ model: connection.model, prompt: 'Go', tools })
+
+    expect(result.toolCalls[0]?.toolName).toBe(firstToolName)
   })
 
   it('builds the scripted mock for LLM_PROVIDER=mock without a key', () => {
