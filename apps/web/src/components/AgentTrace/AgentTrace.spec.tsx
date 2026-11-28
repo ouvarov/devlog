@@ -14,7 +14,7 @@ describe('AgentTrace', () => {
 
     expect(markup).toContain('aria-expanded="false"')
     expect(markup).not.toContain('aria-controls')
-    expect(markup).toContain('Show trace (3 steps)')
+    expect(markup).toContain('Show trace (4 steps)')
     expect(markup).not.toContain('submit_plan')
   })
 
@@ -27,10 +27,19 @@ describe('AgentTraceSteps', () => {
   const markup = renderToStaticMarkup(<AgentTraceSteps steps={trace} />)
 
   it('renders one entry per step with its tool calls', () => {
-    expect(markup.match(/<li[^>]*>\s*<p[^>]*><span[^>]*>Step/g)).toHaveLength(3)
+    expect(markup.match(/<li[^>]*>\s*<p[^>]*><span[^>]*>Step/g)).toHaveLength(4)
     expect(markup).toContain('list_tasks')
     expect(markup).toContain('get_task')
     expect(markup).toContain('Submitting a plan with a done task.')
+  })
+
+  it('renders a text-only step without an empty tool call list', () => {
+    const textOnlyMarkup = renderToStaticMarkup(
+      <AgentTraceSteps steps={trace.filter(({ toolCalls }) => toolCalls.length === 0)} />,
+    )
+
+    expect(textOnlyMarkup).toContain('I will answer in words instead of a tool call.')
+    expect(textOnlyMarkup).not.toContain('<ul')
   })
 
   it('marks a rejected submit and a tool error', () => {

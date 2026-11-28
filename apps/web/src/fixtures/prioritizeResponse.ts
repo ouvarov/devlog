@@ -62,6 +62,12 @@ const PRIORITIZE_RESPONSE: PrioritizeResponse = {
       ],
       finishReason: 'tool-calls',
     },
+    {
+      index: 3,
+      text: 'I will answer in words instead of a tool call.',
+      toolCalls: [],
+      finishReason: 'stop',
+    },
   ],
 }
 

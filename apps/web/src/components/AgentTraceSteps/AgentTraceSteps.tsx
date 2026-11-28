@@ -21,24 +21,26 @@ const AgentTraceSteps: FC<AgentTraceStepsProps> = ({ id, steps }) => (
           <span className={styles.finish}>{finishReason}</span>
         </p>
         {text && <p className={styles.text}>{text}</p>}
-        <ul className={styles.calls}>
-          {toolCalls.map((call, callIndex) => (
-            <li
-              key={`${index}-${callIndex}`}
-              className={call.isError || call.isRejectedSubmit ? styles.callFlagged : styles.call}
-            >
-              <p className={styles.callHeader}>
-                <code className={styles.toolName}>{call.toolName}</code>
-                {call.isRejectedSubmit && <Badge tone="danger">Rejected submit</Badge>}
-                {call.isError && <Badge tone="danger">Tool error</Badge>}
-              </p>
-              <p className={styles.label}>Input</p>
-              <pre className={styles.code}>{formatToolInput(call.input)}</pre>
-              <p className={styles.label}>Output</p>
-              <pre className={styles.code}>{call.output}</pre>
-            </li>
-          ))}
-        </ul>
+        {toolCalls.length > 0 && (
+          <ul className={styles.calls}>
+            {toolCalls.map((call, callIndex) => (
+              <li
+                key={`${index}-${callIndex}`}
+                className={call.isError || call.isRejectedSubmit ? styles.callFlagged : styles.call}
+              >
+                <p className={styles.callHeader}>
+                  <code className={styles.toolName}>{call.toolName}</code>
+                  {call.isRejectedSubmit && <Badge tone="danger">Rejected submit</Badge>}
+                  {call.isError && <Badge tone="danger">Tool error</Badge>}
+                </p>
+                <p className={styles.label}>Input</p>
+                <pre className={styles.code}>{formatToolInput(call.input)}</pre>
+                <p className={styles.label}>Output</p>
+                <pre className={styles.code}>{call.output}</pre>
+              </li>
+            ))}
+          </ul>
+        )}
       </li>
     ))}
   </ol>
