@@ -31,6 +31,8 @@ const toAnsweredState = (response: DecomposeResponse): DecomposeState => {
 const isStartable = ({ phase }: DecomposeState): boolean =>
   phase === 'idle' || phase === 'clarify' || phase === 'error'
 
+const isClosable = ({ phase }: DecomposeState): boolean => phase !== 'creating'
+
 const decomposeReducer = (state: DecomposeState, action: DecomposeAction): DecomposeState => {
   switch (action.type) {
     case 'reset':
@@ -67,4 +69,4 @@ const decomposeReducer = (state: DecomposeState, action: DecomposeAction): Decom
   }
 }
 
-export { decomposeReducer, IDLE_STATE, toDraftItems }
+export { decomposeReducer, IDLE_STATE, isClosable, toDraftItems }

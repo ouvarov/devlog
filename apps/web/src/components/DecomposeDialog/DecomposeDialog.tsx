@@ -7,6 +7,7 @@ import { Dialog } from '@/components/Dialog/Dialog'
 import { useAgentsInfo } from '@/hooks/useAgentsInfo'
 import { useDecompose } from '@/hooks/useDecompose'
 import { useElapsedSeconds } from '@/hooks/useElapsedSeconds'
+import { isClosable } from '@/utils/decomposeState'
 import { getMaxSteps } from '@/utils/prioritizePlan'
 
 type DecomposeDialogProps = {
@@ -22,6 +23,7 @@ const DecomposeDialog: FC<DecomposeDialogProps> = ({ taskId, isOpen, onClose }) 
   const elapsedSeconds = useElapsedSeconds(state.phase === 'running' ? state.startedAt : null)
 
   const handleClose = () => {
+    if (!isClosable(state)) return
     decompose.reset()
     onClose()
   }

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { CLARIFY_RESPONSE, PROPOSAL_RESPONSE } from '@/fixtures/decomposeResponse'
 import type { DecomposeErrorView, DecomposeState } from '@/types/decompose'
 
-import { IDLE_STATE, decomposeReducer, toDraftItems } from './decomposeState'
+import { IDLE_STATE, decomposeReducer, isClosable, toDraftItems } from './decomposeState'
 
 const START_REQUEST = { taskId: 4 }
 const STARTED_AT = 1000
@@ -168,6 +168,18 @@ describe('decomposeReducer', () => {
 
   it('resets from any phase to idle', () => {
     expect(decomposeReducer(creatingState(), { type: 'reset' })).toBe(IDLE_STATE)
+  })
+})
+
+describe('isClosable', () => {
+  it('keeps the dialog open while the batch is being written', () => {
+    expect(isClosable(creatingState())).toBe(false)
+  })
+
+  it('lets the user close in every other phase, including a running agent', () => {
+    for (const state of [IDLE_STATE, runningState(), proposalState()]) {
+      expect(isClosable(state)).toBe(true)
+    }
   })
 })
 
