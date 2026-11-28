@@ -1,13 +1,45 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 
+import type { AgentMeta } from '@devlog/shared'
+
+import { LLM_META } from '@/fixtures/prioritizeResponse'
 import type { PlanTask } from '@/types/prioritizePlan'
+import { getPlanBanner } from '@/utils/prioritizePlan'
 
 import { PrioritizePlanView } from './PrioritizePlanView'
 
 const CI_TASK: PlanTask = { id: 1, title: 'Set up CI', status: 'in-progress', priority: 'high' }
 
+const renderWithMeta = (changes: Partial<AgentMeta>): string =>
+  renderToStaticMarkup(
+    <PrioritizePlanView
+      banner={getPlanBanner({ ...LLM_META, ...changes })}
+      focus={[]}
+      later={[]}
+      summary="Plan summary."
+    />,
+  )
+
 describe('PrioritizePlanView', () => {
+  it('shows "nothing to prioritize" and no fallback banner for a skipped run', () => {
+    const markup = renderWithMeta({ source: 'fallback', stoppedBy: 'skipped', steps: 0 })
+
+    expect(markup).toContain('Nothing to prioritize')
+    expect(markup).not.toContain('Computed without AI')
+  })
+
+  it('shows the fallback banner with the reason in words', () => {
+    const markup = renderWithMeta({
+      source: 'fallback',
+      stoppedBy: 'error',
+      fallbackReason: 'llm-error',
+    })
+
+    expect(markup).toContain('Computed without AI')
+    expect(markup).toContain('The model provider returned an error.')
+  })
+
   it('links known tasks and shows a deleted task as #id without a link', () => {
     const markup = renderToStaticMarkup(
       <PrioritizePlanView

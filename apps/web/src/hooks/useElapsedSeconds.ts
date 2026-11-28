@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react'
 
-const TICK_MS = 1000
+import { MS_PER_SECOND, getElapsedSeconds } from '@/utils/elapsed'
 
 const useElapsedSeconds = (startedAt: number | null): number => {
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
     if (startedAt === null) return
-    const timer = setInterval(() => setNow(Date.now()), TICK_MS)
+    const timer = setInterval(() => setNow(Date.now()), MS_PER_SECOND)
     return () => clearInterval(timer)
   }, [startedAt])
 
-  if (startedAt === null) return 0
-  return Math.max(0, Math.floor((now - startedAt) / TICK_MS))
+  return getElapsedSeconds(startedAt, now)
 }
 
 export { useElapsedSeconds }

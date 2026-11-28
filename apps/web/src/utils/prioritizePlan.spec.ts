@@ -15,6 +15,7 @@ import {
   getMaxSteps,
   getPlanBanner,
   getPlanTaskRefs,
+  getUnlistedIds,
   resolveFocus,
   resolveLater,
 } from './prioritizePlan'
@@ -79,6 +80,20 @@ const lookup = (changes: Partial<TaskLookup>): TaskLookup => ({
 
 const failedWith = (status: number) =>
   lookup({ error: new ApiRequestError({ message: 'Request failed', status }) })
+
+describe('getUnlistedIds', () => {
+  it('asks only for ids the top-level list does not have', () => {
+    expect(getUnlistedIds([1, 14, 2], [task(1, 'A'), task(2, 'B')], false)).toEqual([14])
+  })
+
+  it('asks for nothing while the list is still loading', () => {
+    expect(getUnlistedIds([1, 14], undefined, false)).toEqual([])
+  })
+
+  it('asks for every id when the list failed', () => {
+    expect(getUnlistedIds([1, 14], undefined, true)).toEqual([1, 14])
+  })
+})
 
 describe('getPlanTaskRefs', () => {
   const listed = [task(1, 'Set up CI'), task(2, 'Fix flaky test')]
