@@ -1,6 +1,7 @@
 @use 'tokens' as *;
 
 $spinner-size: $indent-4;
+$spin-duration: 0.8s;
 
 .running {
   display: flex;
@@ -22,10 +23,14 @@ $spinner-size: $indent-4;
 .spinner {
   width: $spinner-size;
   height: $spinner-size;
-  border: 2px solid color('border');
+  border: $border-thick solid color('border');
   border-top-color: color('accent');
   border-radius: $radius-pill;
-  animation: spin 0.8s linear infinite;
+  animation: spin $spin-duration linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 .text {

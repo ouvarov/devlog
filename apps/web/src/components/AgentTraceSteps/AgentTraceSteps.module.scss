@@ -1,5 +1,7 @@
 @use 'tokens' as *;
 
+$output-max-height: 200px;
+
 .steps {
   display: flex;
   flex-direction: column;
@@ -11,7 +13,7 @@
 
 .step {
   padding-left: $indent-3;
-  border-left: 2px solid color('border');
+  border-left: $border-thick solid color('border');
 }
 
 .stepHeader {
@@ -22,7 +24,7 @@
 }
 
 .stepTitle {
-  font-weight: 600;
+  font-weight: bold;
 }
 
 .finish,
@@ -72,13 +74,13 @@
 }
 
 .toolName {
-  font-weight: 600;
+  font-weight: bold;
 }
 
 .code {
   @include font-size('small');
 
-  max-height: 200px;
+  max-height: $output-max-height;
   margin: 0;
   overflow: auto;
   white-space: pre-wrap;
