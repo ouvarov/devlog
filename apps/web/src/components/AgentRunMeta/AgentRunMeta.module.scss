@@ -1,0 +1,23 @@
+@use 'tokens' as *;
+
+.meta {
+  @include font-size('small');
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $indent-1 $indent-3;
+  margin: 0;
+}
+
+.row {
+  min-width: 0;
+}
+
+.label {
+  color: color('text-muted');
+}
+
+.value {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

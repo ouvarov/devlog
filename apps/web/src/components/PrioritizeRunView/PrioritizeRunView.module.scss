@@ -1,0 +1,14 @@
+@use 'tokens' as *;
+
+.run {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-4;
+}
+
+.snapshot {
+  @include font-size('small');
+
+  margin: 0;
+  color: color('text-muted');
+}
