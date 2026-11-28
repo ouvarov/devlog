@@ -33,6 +33,8 @@ type SearchTasksOutput = { tasks: SearchRow[] }
 
 type ToolError = { error: string }
 
+type DecomposeToolkit = { tools: ToolSet; terminalToolNames: readonly string[] }
+
 const SearchTasksInputSchema = z.object({
   query: z.string().describe('Words to look for in task titles and descriptions'),
 })
@@ -69,14 +71,17 @@ const toSearchRow = (task: TaskView): SearchRow => ({
   parentId: task.parentId,
 })
 
-const terminalToolNamesFor = (mode: DecomposeMode): string[] =>
-  mode === 'may-ask' ? [SUBMIT_SUBTASKS_TOOL, ASK_CLARIFICATION_TOOL] : [SUBMIT_SUBTASKS_TOOL]
+// The names are checked against the concrete tool set here, before it is widened to ToolSet.
+const toolkitOf = <TOOLS extends ToolSet>(
+  tools: TOOLS,
+  terminalToolNames: readonly (keyof TOOLS & string)[],
+): DecomposeToolkit => ({ tools, terminalToolNames })
 
-const createDecomposeTools = (
+const createDecomposeToolkit = (
   tasksReader: TasksReader,
   task: TaskDetail,
   mode: DecomposeMode,
-): ToolSet => {
+): DecomposeToolkit => {
   const searchTasks = tool({
     description:
       'Find existing tasks whose title or description contains any of the words, to avoid duplicating them.',
@@ -110,18 +115,28 @@ const createDecomposeTools = (
       }),
   })
 
-  return {
-    [SEARCH_TASKS_TOOL]: searchTasks,
-    ...(mode === 'may-ask' ? { [ASK_CLARIFICATION_TOOL]: askClarification } : {}),
-    [SUBMIT_SUBTASKS_TOOL]: submitSubtasks,
+  if (mode !== 'may-ask') {
+    return toolkitOf({ [SEARCH_TASKS_TOOL]: searchTasks, [SUBMIT_SUBTASKS_TOOL]: submitSubtasks }, [
+      SUBMIT_SUBTASKS_TOOL,
+    ])
   }
+  // A proposal wins over questions when one step does both: it is validated work the user
+  // still confirms item by item, while the questions would only cost another round trip.
+  return toolkitOf(
+    {
+      [SEARCH_TASKS_TOOL]: searchTasks,
+      [ASK_CLARIFICATION_TOOL]: askClarification,
+      [SUBMIT_SUBTASKS_TOOL]: submitSubtasks,
+    },
+    [SUBMIT_SUBTASKS_TOOL, ASK_CLARIFICATION_TOOL],
+  )
 }
 
 export {
   ASK_CLARIFICATION_TOOL,
-  createDecomposeTools,
+  createDecomposeToolkit,
   DECOMPOSE_TOOL_NAMES,
   SEARCH_TASKS_TOOL,
   SUBMIT_SUBTASKS_TOOL,
-  terminalToolNamesFor,
 }
+export type { DecomposeToolkit }

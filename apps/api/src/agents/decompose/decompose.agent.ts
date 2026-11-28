@@ -28,8 +28,7 @@ import {
   ASK_CLARIFICATION_TOOL,
   DECOMPOSE_TOOL_NAMES,
   SUBMIT_SUBTASKS_TOOL,
-  createDecomposeTools,
-  terminalToolNamesFor,
+  createDecomposeToolkit,
 } from './decompose-tools.js'
 import { DECOMPOSE_INSTRUCTIONS } from './decompose.instructions.js'
 
@@ -90,14 +89,13 @@ export class DecomposeAgent {
   async run(request: DecomposeRequest): Promise<DecomposeResponse> {
     const llm = requireConfiguredLlm(this.llm)
     const task = await this.findSplittableTask(request.taskId)
-    const mode = decomposeModeOf(request)
+    const toolkit = createDecomposeToolkit(this.tasksReader, task, decomposeModeOf(request))
 
     const run = await runToolAgent({
       model: llm.model,
       instructions: DECOMPOSE_INSTRUCTIONS,
       prompt: buildDecomposePrompt(task, request),
-      tools: createDecomposeTools(this.tasksReader, task, mode),
-      terminalToolNames: terminalToolNamesFor(mode),
+      ...toolkit,
       maxSteps: DECOMPOSE_MAX_STEPS,
     })
     return this.toResponse(llm, run)
