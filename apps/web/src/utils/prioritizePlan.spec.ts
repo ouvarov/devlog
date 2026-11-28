@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { AGENT_FALLBACK_REASONS, type AgentMeta, type TaskView } from '@devlog/shared'
+import {
+  AGENT_FALLBACK_REASONS,
+  type AgentMeta,
+  type AgentsInfo,
+  type TaskView,
+} from '@devlog/shared'
 
 import { LLM_META } from '@/fixtures/prioritizeResponse'
 
@@ -86,14 +91,14 @@ describe('resolveFocus and resolveLater', () => {
 
 describe('getMaxSteps', () => {
   it('reads the step limit of the named agent', () => {
-    const info = {
+    const info: AgentsInfo = {
       isConfigured: true,
       provider: 'mock',
       modelId: 'mock',
       agents: [{ name: 'prioritize', maxSteps: 6, tools: [] }],
-    } as const
+    }
 
-    expect(getMaxSteps({ ...info, agents: [...info.agents] }, 'prioritize')).toBe(6)
+    expect(getMaxSteps(info, 'prioritize')).toBe(6)
     expect(getMaxSteps(undefined, 'prioritize')).toBeNull()
   })
 })
