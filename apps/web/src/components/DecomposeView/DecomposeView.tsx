@@ -8,12 +8,7 @@ import { DecomposeClarify } from '@/components/DecomposeClarify/DecomposeClarify
 import { DecomposeError } from '@/components/DecomposeError/DecomposeError'
 import { DecomposeProposal } from '@/components/DecomposeProposal/DecomposeProposal'
 import { DecomposeStart } from '@/components/DecomposeStart/DecomposeStart'
-import type {
-  AgentRun,
-  ClarifyErrors,
-  DecomposeState,
-  ProposalItemChanges,
-} from '@/types/decompose'
+import type { AgentRun, DecomposeState, ProposalItemChanges } from '@/types/decompose'
 import { pluralize } from '@/utils/text'
 
 import styles from './DecomposeView.module.scss'
@@ -24,7 +19,7 @@ type DecomposeViewProps = {
   elapsedSeconds: number
   isNotConfigured: boolean
   onStart: (isSkippingQuestions: boolean) => void
-  onAnswer: (answers: string[]) => ClarifyErrors | null
+  onAnswer: (answers: string[]) => void
   onSkipQuestions: () => void
   onItemChange: (key: number, changes: ProposalItemChanges) => void
   onCreate: () => void
@@ -83,6 +78,7 @@ const DecomposeView: FC<DecomposeViewProps> = ({
         <>
           <DecomposeClarify
             questions={state.questions}
+            errors={state.errors}
             onSubmit={onAnswer}
             onSkip={onSkipQuestions}
             onCancel={onClose}

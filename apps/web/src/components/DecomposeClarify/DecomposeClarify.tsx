@@ -1,6 +1,6 @@
 'use client'
 
-import { type FC, type FormEvent, useId, useState } from 'react'
+import { type FC, type FormEvent, useId } from 'react'
 
 import { CLARIFY_ANSWER_MAX_LENGTH } from '@devlog/shared'
 
@@ -11,7 +11,8 @@ import styles from './DecomposeClarify.module.scss'
 
 type DecomposeClarifyProps = {
   questions: readonly string[]
-  onSubmit: (answers: string[]) => ClarifyErrors | null
+  errors: ClarifyErrors | null
+  onSubmit: (answers: string[]) => void
   onSkip: () => void
   onCancel: () => void
 }
@@ -26,8 +27,13 @@ const readAnswers = (form: HTMLFormElement, count: number): string[] => {
   })
 }
 
-const DecomposeClarify: FC<DecomposeClarifyProps> = ({ questions, onSubmit, onSkip, onCancel }) => {
-  const [errors, setErrors] = useState<ClarifyErrors | null>(null)
+const DecomposeClarify: FC<DecomposeClarifyProps> = ({
+  questions,
+  errors,
+  onSubmit,
+  onSkip,
+  onCancel,
+}) => {
   const formId = useId()
 
   const getFieldId = (index: number) => `${formId}-${index}`
@@ -35,7 +41,7 @@ const DecomposeClarify: FC<DecomposeClarifyProps> = ({ questions, onSubmit, onSk
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setErrors(onSubmit(readAnswers(event.currentTarget, questions.length)))
+    onSubmit(readAnswers(event.currentTarget, questions.length))
   }
 
   return (

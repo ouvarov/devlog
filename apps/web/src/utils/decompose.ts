@@ -31,6 +31,7 @@ const ERROR_TITLES: Partial<Record<ApiErrorCode, string>> = {
 
 const DEFAULT_ERROR_TITLE = 'The agent could not run'
 const MARKED_ITEMS_MESSAGE = 'Fix the marked subtasks and try again.'
+const MARKED_ANSWERS_MESSAGE = 'Answer the marked questions to continue.'
 
 const toStartRequest = (taskId: number, isSkippingQuestions: boolean): DecomposeRequest =>
   isSkippingQuestions ? { taskId, skipClarification: true } : { taskId }
@@ -57,6 +58,7 @@ const toClarifiedRequest = (
       errors.message ??= getIssueMessage(issue)
     }
   }
+  errors.message ??= MARKED_ANSWERS_MESSAGE
   return { success: false, errors }
 }
 

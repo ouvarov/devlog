@@ -48,11 +48,10 @@ const useDecompose = (taskId: number) => {
     void run(toStartRequest(taskId, isSkippingQuestions))
 
   const answer = (answers: string[]) => {
-    if (state.phase !== 'clarify') return null
+    if (state.phase !== 'clarify') return
     const request = toClarifiedRequest(taskId, state.questions, answers)
-    if (!request.success) return request.errors
-    void run(request.data)
-    return null
+    if (request.success) void run(request.data)
+    else dispatch({ type: 'answers-invalid', errors: request.errors })
   }
 
   const skipQuestions = () => void run(toSkipRequest(taskId))

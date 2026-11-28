@@ -54,7 +54,7 @@ type ProposalStage = {
 type DecomposeState =
   | { phase: 'idle' }
   | { phase: 'running'; request: DecomposeRequest; startedAt: number }
-  | { phase: 'clarify'; questions: string[]; run: AgentRun }
+  | { phase: 'clarify'; questions: string[]; run: AgentRun; errors: ClarifyErrors | null }
   | ({ phase: 'proposal' } & ProposalStage)
   | ({ phase: 'creating' } & ProposalStage)
   | { phase: 'done'; createdCount: number }
@@ -63,6 +63,7 @@ type DecomposeState =
 type DecomposeAction =
   | { type: 'started'; request: DecomposeRequest; startedAt: number }
   | { type: 'answered'; response: DecomposeResponse }
+  | { type: 'answers-invalid'; errors: ClarifyErrors }
   | { type: 'failed'; error: DecomposeErrorView }
   | { type: 'item-changed'; key: number; changes: ProposalItemChanges }
   | { type: 'create-started' }

@@ -17,7 +17,7 @@ const renderState = (state: DecomposeState, isNotConfigured = false) =>
       elapsedSeconds={3}
       isNotConfigured={isNotConfigured}
       onStart={() => {}}
-      onAnswer={() => null}
+      onAnswer={() => {}}
       onSkipQuestions={() => {}}
       onItemChange={() => {}}
       onCreate={() => {}}
@@ -64,6 +64,21 @@ describe('DecomposeView', () => {
     expect(markup).toContain('Skip questions')
     expect(markup).toContain('Show trace (1 step)')
     expect(markup).toContain('mock-decompose')
+  })
+
+  it('marks an empty answer and announces a summary after Continue', () => {
+    const invalid = decomposeReducer(clarify, {
+      type: 'answers-invalid',
+      errors: {
+        answers: { 1: 'This field is required' },
+        message: 'Answer the marked questions to continue.',
+      },
+    })
+    const markup = renderState(invalid)
+
+    expect(markup.match(/aria-invalid="true"/g)).toHaveLength(1)
+    expect(markup).toContain('This field is required')
+    expect(markup).toMatch(/role="alert"[^>]*>Answer the marked questions to continue\./)
   })
 
   it('renders model questions as text', () => {

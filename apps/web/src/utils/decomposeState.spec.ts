@@ -39,7 +39,24 @@ describe('decomposeReducer', () => {
       phase: 'clarify',
       questions: CLARIFY_RESPONSE.kind === 'clarify' ? CLARIFY_RESPONSE.questions : [],
       run: { meta: CLARIFY_RESPONSE.meta, trace: CLARIFY_RESPONSE.trace },
+      errors: null,
     })
+  })
+
+  it('keeps the questions and shows answer errors in clarify', () => {
+    const clarify = decomposeReducer(runningState(), {
+      type: 'answered',
+      response: CLARIFY_RESPONSE,
+    })
+    const errors = { answers: { 0: 'This field is required' }, message: 'Answer them' }
+
+    expect(decomposeReducer(clarify, { type: 'answers-invalid', errors })).toEqual({
+      ...clarify,
+      errors,
+    })
+    expect(decomposeReducer(runningState(), { type: 'answers-invalid', errors }).phase).toBe(
+      'running',
+    )
   })
 
   it('moves to a proposal with every item ticked', () => {

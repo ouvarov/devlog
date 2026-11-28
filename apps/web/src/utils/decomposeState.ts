@@ -16,7 +16,9 @@ const toDraftItems = (items: readonly DecomposeItem[]): ProposalItemDraft[] =>
 
 const toAnsweredState = (response: DecomposeResponse): DecomposeState => {
   const run = { meta: response.meta, trace: response.trace }
-  if (response.kind === 'clarify') return { phase: 'clarify', questions: response.questions, run }
+  if (response.kind === 'clarify') {
+    return { phase: 'clarify', questions: response.questions, run, errors: null }
+  }
   return {
     phase: 'proposal',
     items: toDraftItems(response.items),
@@ -39,6 +41,9 @@ const decomposeReducer = (state: DecomposeState, action: DecomposeAction): Decom
     case 'answered':
       if (state.phase !== 'running') return state
       return toAnsweredState(action.response)
+    case 'answers-invalid':
+      if (state.phase !== 'clarify') return state
+      return { ...state, errors: action.errors }
     case 'failed':
       if (state.phase !== 'running') return state
       return { phase: 'error', error: action.error, request: state.request }

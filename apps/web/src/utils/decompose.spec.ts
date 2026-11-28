@@ -59,7 +59,10 @@ describe('toClarifiedRequest', () => {
 
     expect(result).toEqual({
       success: false,
-      errors: { answers: { 1: 'This field is required' }, message: null },
+      errors: {
+        answers: { 1: 'This field is required' },
+        message: 'Answer the marked questions to continue.',
+      },
     })
   })
 
@@ -68,7 +71,10 @@ describe('toClarifiedRequest', () => {
 
     expect(result).toEqual({
       success: false,
-      errors: { answers: { 0: 'Must be at most 500 characters' }, message: null },
+      errors: {
+        answers: { 0: 'Must be at most 500 characters' },
+        message: 'Answer the marked questions to continue.',
+      },
     })
   })
 })
