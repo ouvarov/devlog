@@ -6,6 +6,7 @@ type MockPrompt = MockCallOptions['prompt']
 type MockStepResult = MockGenerateResult | PromiseLike<MockGenerateResult>
 type MockStep = MockGenerateResult | ((options: MockCallOptions) => MockStepResult)
 type MockScript = readonly MockStep[]
+type MockScriptPicker = (options: MockCallOptions) => MockScript
 
 const MOCK_PROVIDER_ID = 'mock'
 const DEFAULT_MOCK_MODEL_ID = 'scripted-mock'
@@ -59,15 +60,35 @@ const resolveStep = (script: MockScript, options: MockCallOptions): MockStepResu
   return typeof step === 'function' ? step(options) : step
 }
 
+const offeredToolNamesOf = (options: MockCallOptions): ReadonlySet<string> =>
+  new Set(options.tools?.map(({ name }) => name))
+
 const createScriptedModel = (
-  script: MockScript,
+  script: MockScript | MockScriptPicker,
   modelId = DEFAULT_MOCK_MODEL_ID,
 ): MockLanguageModelV4 =>
   new MockLanguageModelV4({
     provider: MOCK_PROVIDER_ID,
     modelId,
-    doGenerate: (options) => Promise.resolve().then(() => resolveStep(script, options)),
+    doGenerate: (options) =>
+      Promise.resolve().then(() =>
+        resolveStep(typeof script === 'function' ? script(options) : script, options),
+      ),
   })
 
-export { createScriptedModel, failingStep, textStep, toolCallStep, toolOutputsIn }
-export type { MockCallOptions, MockGenerateResult, MockPrompt, MockScript, MockStep }
+export {
+  createScriptedModel,
+  failingStep,
+  offeredToolNamesOf,
+  textStep,
+  toolCallStep,
+  toolOutputsIn,
+}
+export type {
+  MockCallOptions,
+  MockGenerateResult,
+  MockPrompt,
+  MockScript,
+  MockScriptPicker,
+  MockStep,
+}

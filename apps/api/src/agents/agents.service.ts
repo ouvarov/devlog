@@ -4,6 +4,7 @@ import type { AgentsInfo } from '@devlog/shared'
 
 import type { LlmConnection } from '../llm/llm-connection.js'
 import { LLM } from '../llm/llm.tokens.js'
+import { DECOMPOSE_AGENT_INFO } from './decompose/decompose.agent.js'
 import { PRIORITIZE_AGENT_INFO } from './prioritize/prioritize.agent.js'
 
 @Injectable()
@@ -15,7 +16,7 @@ export class AgentsService {
       isConfigured: this.llm.isConfigured,
       provider: this.llm.provider,
       modelId: this.llm.isConfigured ? this.llm.modelId : null,
-      agents: [PRIORITIZE_AGENT_INFO],
+      agents: [PRIORITIZE_AGENT_INFO, DECOMPOSE_AGENT_INFO],
     }
   }
 }

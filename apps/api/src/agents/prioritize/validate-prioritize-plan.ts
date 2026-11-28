@@ -1,5 +1,3 @@
-import type { z } from 'zod'
-
 import {
   PLAN_FOCUS_MAX_SIZE,
   PLAN_FOCUS_MIN_SIZE,
@@ -8,12 +6,8 @@ import {
   type TaskView,
 } from '@devlog/shared'
 
+import { formatIssue } from '../runtime/format-issue.js'
 import type { SubmitResult } from '../runtime/submit-result.js'
-
-const formatIssue = (issue: z.core.$ZodIssue): string => {
-  const path = issue.path.map(String).join('.')
-  return path ? `${path}: ${issue.message}` : issue.message
-}
 
 const focusSizeErrors = (focusSize: number, openTaskCount: number): string[] => {
   const minFocusSize = Math.min(PLAN_FOCUS_MIN_SIZE, openTaskCount)

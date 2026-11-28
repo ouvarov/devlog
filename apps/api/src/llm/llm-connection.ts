@@ -5,7 +5,7 @@ import type { LlmProvider } from '@devlog/shared'
 
 import { LlmNotConfiguredException } from '../common/errors/llm-not-configured.exception.js'
 import type { Env } from '../config/env.schema.js'
-import { PRIORITIZE_MOCK_SCRIPT } from './mock/prioritize-mock-script.js'
+import { pickDemoMockScript } from './mock/demo-mock-scripts.js'
 import { createScriptedModel } from './mock/scripted-model.js'
 
 const DEFAULT_LLM_PROVIDER: LlmProvider = 'google'
@@ -29,7 +29,7 @@ type LlmEnv = Pick<Env, 'LLM_PROVIDER' | 'GOOGLE_GENERATIVE_AI_API_KEY' | 'GEMIN
 const createLlmConnection = (env: LlmEnv): LlmConnection => {
   const provider = env.LLM_PROVIDER ?? DEFAULT_LLM_PROVIDER
   if (provider === 'mock') {
-    const mockModel = createScriptedModel(PRIORITIZE_MOCK_SCRIPT)
+    const mockModel = createScriptedModel(pickDemoMockScript)
     return { isConfigured: true, provider, modelId: mockModel.modelId, model: mockModel }
   }
 

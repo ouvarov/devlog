@@ -1,4 +1,5 @@
 export * from './agent.js'
 export * from './api-error.js'
+export * from './decompose.js'
 export * from './health.js'
 export * from './task.js'

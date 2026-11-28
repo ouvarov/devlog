@@ -11,6 +11,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ApiError } from '@devlog/shared'
 
 import { ValidationFailedException } from '../validation/validation-failed.exception.js'
+import { AgentFailedException } from './agent-failed.exception.js'
 import { ApiExceptionFilter } from './api-exception.filter.js'
 
 type Reply = { body: ApiError; statusCode: number }
@@ -68,6 +69,22 @@ describe('ApiExceptionFilter', () => {
       code: 'VALIDATION_FAILED',
       message: 'Validation failed',
       issues,
+    })
+  })
+
+  it('replies 422 AGENT_FAILED with the trace of a failed agent run', () => {
+    const trace = [{ index: 0, toolCalls: [], finishReason: 'stop' }]
+
+    const reply = catchWithFilter(new AgentFailedException('No valid answer within 6 steps', trace))
+
+    expect(reply).toEqual({
+      statusCode: 422,
+      body: {
+        statusCode: 422,
+        code: 'AGENT_FAILED',
+        message: 'No valid answer within 6 steps',
+        trace,
+      },
     })
   })
 
