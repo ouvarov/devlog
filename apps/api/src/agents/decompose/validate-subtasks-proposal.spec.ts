@@ -69,7 +69,7 @@ describe('validateSubtasksProposal', () => {
 
     expect(result).toEqual({
       accepted: false,
-      errors: ['Title "  add  AN index " is used more than once'],
+      errors: ['Title "add  AN index" is used more than once'],
     })
   })
 
@@ -93,8 +93,8 @@ describe('validateSubtasksProposal', () => {
 
     expect(result.accepted).toBe(false)
     expect(result.accepted ? [] : result.errors).toEqual([
-      expect.stringMatching(/^items: /),
       expect.stringMatching(/^items\.0\.title: /),
+      expect.stringMatching(/^items: /),
     ])
   })
 
