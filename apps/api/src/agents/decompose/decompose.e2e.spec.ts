@@ -22,7 +22,7 @@ import type { LlmConnection } from '../../llm/llm-connection.js'
 import { LLM } from '../../llm/llm.tokens.js'
 import { submitPartsOfTaskTitle } from '../../llm/mock/decompose-mock-script.js'
 import { pickDemoMockScript } from '../../llm/mock/demo-mock-scripts.js'
-import { badRequestError, rateLimitError } from '../../llm/mock/mock-failures.js'
+import { badRequestError, rateLimitError, timeoutAbortError } from '../../llm/mock/mock-failures.js'
 import {
   type MockCallOptions,
   type MockScript,
@@ -314,6 +314,7 @@ describe('POST /agents/decompose (e2e)', () => {
     it.each([
       ['a rate limit', rateLimitError(), 'rate limited'],
       ['a provider error', badRequestError(), 'model call failed'],
+      ['a timeout', timeoutAbortError(), 'did not answer in time'],
     ])('answers 422 AGENT_FAILED with the trace on %s', async (_case, error, message) => {
       script = [toolCallStep('search_tasks', { query: 'performance' }), failingStep(error)]
 
