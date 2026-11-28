@@ -9,7 +9,13 @@ import {
 
 import { LLM_META } from '@/fixtures/prioritizeResponse'
 
-import { getMaxSteps, getPlanBanner, resolveFocus, resolveLater, toKnownTasks } from './prioritizePlan'
+import {
+  getMaxSteps,
+  getPlanBanner,
+  resolveFocus,
+  resolveLater,
+  toKnownTasks,
+} from './prioritizePlan'
 
 const fallbackMeta = (changes: Partial<AgentMeta>): AgentMeta => ({
   ...LLM_META,

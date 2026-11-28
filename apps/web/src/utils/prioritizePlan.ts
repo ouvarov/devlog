@@ -1,4 +1,4 @@
-import type { AgentMeta, AgentsInfo, AgentName, PlanFocusItem, TaskView } from '@devlog/shared'
+import type { AgentMeta, AgentName, AgentsInfo, PlanFocusItem, TaskView } from '@devlog/shared'
 
 import { FALLBACK_REASON_MESSAGES } from '@/config/agentDisplay'
 import type {
@@ -23,7 +23,11 @@ const getPlanBanner = ({ stoppedBy, source, fallbackReason }: AgentMeta): PlanBa
     const reason = fallbackReason
       ? FALLBACK_REASON_MESSAGES[fallbackReason]
       : UNKNOWN_FALLBACK_MESSAGE
-    return { kind: 'fallback', title: 'Computed without AI', message: `${reason} ${FALLBACK_PLAN_NOTE}` }
+    return {
+      kind: 'fallback',
+      title: 'Computed without AI',
+      message: `${reason} ${FALLBACK_PLAN_NOTE}`,
+    }
   }
   return null
 }

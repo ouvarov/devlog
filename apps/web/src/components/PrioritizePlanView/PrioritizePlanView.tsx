@@ -2,12 +2,7 @@ import Link from 'next/link'
 import type { FC } from 'react'
 
 import { Badge } from '@/components/Badge/Badge'
-import {
-  PRIORITY_LABELS,
-  PRIORITY_TONES,
-  STATUS_LABELS,
-  STATUS_TONES,
-} from '@/config/taskDisplay'
+import { PRIORITY_LABELS, PRIORITY_TONES, STATUS_LABELS, STATUS_TONES } from '@/config/taskDisplay'
 import type { PlanBanner, ResolvedFocusItem, ResolvedLaterItem } from '@/types/prioritizePlan'
 
 import styles from './PrioritizePlanView.module.scss'
