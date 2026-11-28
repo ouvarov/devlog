@@ -13,6 +13,7 @@ import {
   PrioritizeResponseSchema,
   type TaskPriority,
   type TaskStatus,
+  TaskViewSchema,
 } from '@devlog/shared'
 
 import { AppModule } from '../app.module.js'
@@ -143,7 +144,7 @@ describe('AgentsController (e2e)', () => {
   })
 
   describe('GET /agents', () => {
-    it('names the provider, the model and the prioritize agent', async () => {
+    it('names the provider, the model and both agents', async () => {
       const response = await api().get('/agents').expect(200)
 
       expect(AgentsInfoSchema.parse(response.body)).toEqual({
@@ -155,6 +156,11 @@ describe('AgentsController (e2e)', () => {
             name: 'prioritize',
             maxSteps: MAX_STEPS,
             tools: ['list_tasks', 'get_task', 'submit_plan'],
+          },
+          {
+            name: 'decompose',
+            maxSteps: MAX_STEPS,
+            tools: ['search_tasks', 'ask_clarification', 'submit_subtasks'],
           },
         ],
       })
@@ -349,6 +355,29 @@ describe('AgentsController without an LLM key (e2e)', () => {
       provider: 'google',
       modelId: null,
     })
+  })
+
+  it('answers 503 LLM_NOT_CONFIGURED for decompose', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/tasks')
+      .send({ title: 'Split me' })
+      .expect(201)
+
+    const response = await request(app.getHttpServer())
+      .post('/agents/decompose')
+      .send({ taskId: TaskViewSchema.parse(created.body).id })
+      .expect(503)
+
+    expect(ApiErrorSchema.parse(response.body).code).toBe('LLM_NOT_CONFIGURED')
+  })
+
+  it('answers 503 for decompose before it looks the task up', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/agents/decompose')
+      .send({ taskId: MISSING_TASK_ID })
+      .expect(503)
+
+    expect(ApiErrorSchema.parse(response.body).code).toBe('LLM_NOT_CONFIGURED')
   })
 
   it('answers 503 LLM_NOT_CONFIGURED for prioritize', async () => {

@@ -77,7 +77,7 @@ export class PrioritizeAgent {
       instructions: PRIORITIZE_INSTRUCTIONS,
       prompt: buildPrompt(openTasks.length, now),
       tools: createPrioritizeTools(this.tasksReader, now),
-      submitToolName: SUBMIT_PLAN_TOOL,
+      terminalToolNames: [SUBMIT_PLAN_TOOL],
       maxSteps: PRIORITIZE_MAX_STEPS,
     })
     return this.toResponse(llm, run, openTasks, now)

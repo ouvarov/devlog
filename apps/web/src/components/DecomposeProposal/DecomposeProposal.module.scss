@@ -1,0 +1,59 @@
+@use 'tokens' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-4;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-3;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.assumptions {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-1;
+}
+
+.heading {
+  @include font-size('body');
+
+  margin: 0;
+}
+
+.assumptionList {
+  @include font-size('small');
+
+  margin: 0;
+  padding-left: $indent-4;
+  color: color('text-muted');
+  overflow-wrap: anywhere;
+}
+
+.error {
+  @include font-size('small');
+
+  margin: 0;
+  color: color('danger');
+}
+
+.actions {
+  display: flex;
+  gap: $indent-2;
+  justify-content: flex-end;
+}

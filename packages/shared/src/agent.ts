@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { TaskIdSchema } from './task.js'
 
 const LLM_PROVIDERS = ['google', 'mock'] as const
-const AGENT_NAMES = ['prioritize'] as const
+const AGENT_NAMES = ['prioritize', 'decompose'] as const
 const AGENT_SOURCES = ['llm', 'fallback'] as const
 const AGENT_STOP_REASONS = ['submitted', 'step-limit', 'error', 'skipped'] as const
 const AGENT_FALLBACK_REASONS = ['rate-limited', 'timeout', 'invalid-output', 'llm-error'] as const

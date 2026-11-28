@@ -1,0 +1,80 @@
+@use 'tokens' as *;
+
+.item {
+  padding: $indent-3;
+  background: color('surface');
+  border: 1px solid color('border');
+  border-radius: $radius-card;
+}
+
+.excluded {
+  composes: item;
+
+  background: color('surface-muted');
+  border-style: dashed;
+}
+
+.skipped {
+  @include font-size('small');
+
+  color: color('text-muted');
+}
+
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: $indent-2;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  display: flex;
+  gap: $indent-2;
+  align-items: center;
+  margin-bottom: $indent-2;
+  padding: 0;
+}
+
+.field {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: $indent-1;
+}
+
+.row {
+  display: flex;
+  gap: $indent-3;
+}
+
+.control {
+  padding: $indent-2;
+  font: inherit;
+  color: color('text');
+  background: color('surface');
+  border: 1px solid color('border');
+  border-radius: $radius-control;
+
+  &[aria-invalid='true'] {
+    border-color: color('danger');
+  }
+}
+
+.description {
+  @include font-size('small');
+
+  margin: 0;
+  color: color('text-muted');
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.error {
+  @include font-size('small');
+
+  margin: 0;
+  color: color('danger');
+}

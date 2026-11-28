@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { hasNoIssues } from './schema-helpers.js'
+
 const TASK_STATUSES = ['todo', 'in-progress', 'done'] as const
 const TASK_PRIORITIES = ['low', 'medium', 'high'] as const
 const TASK_SORT_FIELDS = ['createdAt', 'priority'] as const
@@ -8,8 +10,6 @@ const SORT_ORDERS = ['asc', 'desc'] as const
 const TASK_TITLE_MAX_LENGTH = 200
 const TASK_DESCRIPTION_MAX_LENGTH = 5000
 const MAX_BATCH_OPERATIONS = 20
-
-const hasNoIssues = (payload: z.core.ParsePayload): boolean => payload.issues.length === 0
 
 const TaskStatusSchema = z.enum(TASK_STATUSES)
 const TaskPrioritySchema = z.enum(TASK_PRIORITIES)
@@ -125,10 +125,12 @@ export {
   TASK_TITLE_MAX_LENGTH,
   TaskDetailSchema,
   TaskIdSchema,
+  TaskDescriptionSchema,
   TaskListResponseSchema,
   TaskParentSchema,
   TaskPrioritySchema,
   TaskStatusSchema,
+  TaskTitleSchema,
   TaskViewSchema,
   UpdateTaskSchema,
 }

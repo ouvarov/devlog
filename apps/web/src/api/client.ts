@@ -1,4 +1,9 @@
-import { type ApiErrorCode, ApiErrorSchema, type ApiIssue } from '@devlog/shared'
+import {
+  type AgentTraceStep,
+  type ApiErrorCode,
+  ApiErrorSchema,
+  type ApiIssue,
+} from '@devlog/shared'
 
 import { API_URL } from '@/config/api'
 
@@ -11,6 +16,7 @@ type ApiRequestErrorInit = {
   status: number | null
   code?: ApiErrorCode | null
   issues?: ApiIssue[]
+  trace?: AgentTraceStep[]
   cause?: unknown
 }
 
@@ -21,13 +27,15 @@ class ApiRequestError extends Error {
   readonly status: number | null
   readonly code: ApiErrorCode | null
   readonly issues: ApiIssue[] | undefined
+  readonly trace: AgentTraceStep[] | undefined
 
-  constructor({ message, status, code = null, issues, cause }: ApiRequestErrorInit) {
+  constructor({ message, status, code = null, issues, trace, cause }: ApiRequestErrorInit) {
     super(message, { cause })
     this.name = 'ApiRequestError'
     this.status = status
     this.code = code
     this.issues = issues
+    this.trace = trace
   }
 
   get isNetworkError(): boolean {
@@ -46,8 +54,8 @@ const toResponseError = (status: number, body: unknown): ApiRequestError => {
     return new ApiRequestError({ message: `Request failed with status ${status}`, status })
   }
 
-  const { message, code, issues } = apiError.data
-  return new ApiRequestError({ message, status, code, issues })
+  const { message, code, issues, trace } = apiError.data
+  return new ApiRequestError({ message, status, code, issues, trace })
 }
 
 const send = async (path: string, init: RequestInit): Promise<Response> => {

@@ -11,6 +11,7 @@ import { HttpAdapterHost } from '@nestjs/core'
 import type { ApiError, ApiErrorCode } from '@devlog/shared'
 
 import { ValidationFailedException } from '../validation/validation-failed.exception.js'
+import { AgentFailedException } from './agent-failed.exception.js'
 import { LlmNotConfiguredException } from './llm-not-configured.exception.js'
 import { mapPostgresError } from './postgres-error.js'
 
@@ -47,6 +48,9 @@ const fromHttpException = (exception: HttpException): ApiError => {
   }
   if (exception instanceof LlmNotConfiguredException) {
     return { statusCode, code: 'LLM_NOT_CONFIGURED', message }
+  }
+  if (exception instanceof AgentFailedException) {
+    return { statusCode, code: 'AGENT_FAILED', message, trace: exception.trace }
   }
 
   return { statusCode, code: codeForStatus(statusCode), message }

@@ -35,13 +35,13 @@ const toolOutcomesOf = <TOOLS extends ToolSet>(
 
 const toToolCallTraces = <TOOLS extends ToolSet>(
   step: StepResult<TOOLS>,
-  submitToolName: string,
+  terminalToolNames: ReadonlySet<string>,
 ): AgentToolCallTrace[] => {
   const outcomes = toolOutcomesOf(step)
 
   return step.toolCalls.map((toolCall) => {
     const outcome = outcomes.get(toolCall.toolCallId) ?? { output: null, isError: true }
-    const isSubmit = toolCall.toolName === submitToolName
+    const isSubmit = terminalToolNames.has(toolCall.toolName)
     return {
       toolName: toolCall.toolName,
       input: toolCall.input,
@@ -54,12 +54,12 @@ const toToolCallTraces = <TOOLS extends ToolSet>(
 
 const toTrace = <TOOLS extends ToolSet>(
   steps: readonly StepResult<TOOLS>[],
-  submitToolName: string,
+  terminalToolNames: ReadonlySet<string>,
 ): AgentTraceStep[] =>
   steps.map((step) => ({
     index: step.stepNumber,
     ...(step.text ? { text: step.text } : {}),
-    toolCalls: toToolCallTraces(step, submitToolName),
+    toolCalls: toToolCallTraces(step, terminalToolNames),
     finishReason: step.finishReason,
   }))
 

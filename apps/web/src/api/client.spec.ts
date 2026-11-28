@@ -64,6 +64,20 @@ describe('requestJson', () => {
     })
   })
 
+  it('keeps the agent trace from a failed agent run', async () => {
+    const trace = [{ index: 0, toolCalls: [], finishReason: 'stop' }]
+    respondWith(
+      jsonResponse(
+        { statusCode: 422, code: 'AGENT_FAILED', message: 'Step limit reached', trace },
+        422,
+      ),
+    )
+
+    const error = await catchError(requestJson('/agents/decompose', TaskViewSchema))
+
+    expect(error).toMatchObject({ status: 422, code: 'AGENT_FAILED', trace })
+  })
+
   it('keeps issues undefined when the API error has none', async () => {
     respondWith(
       jsonResponse({ statusCode: 404, code: 'NOT_FOUND', message: 'Task 9 not found' }, 404),

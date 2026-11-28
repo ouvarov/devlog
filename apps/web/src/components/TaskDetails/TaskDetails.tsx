@@ -5,6 +5,7 @@ import type { FC } from 'react'
 
 import { AddTaskButton } from '@/components/AddTaskButton/AddTaskButton'
 import { Badge } from '@/components/Badge/Badge'
+import { DecomposeButton } from '@/components/DecomposeButton/DecomposeButton'
 import { DeleteTaskButton } from '@/components/DeleteTaskButton/DeleteTaskButton'
 import { EditTaskButton } from '@/components/EditTaskButton/EditTaskButton'
 import { LoadError } from '@/components/LoadError/LoadError'
@@ -104,7 +105,12 @@ const TaskDetails: FC<TaskDetailsProps> = ({ taskId }) => {
                 {task.subtaskDoneCount}/{task.subtaskCount}
               </span>
             </h2>
-            {task.status !== 'done' && <AddTaskButton parentId={task.id} />}
+            {task.status !== 'done' && (
+              <div className={styles.subtaskActions}>
+                <DecomposeButton taskId={task.id} />
+                <AddTaskButton parentId={task.id} />
+              </div>
+            )}
           </div>
           <SubtaskList parentId={task.id} />
         </section>

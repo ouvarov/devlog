@@ -14,6 +14,11 @@ export class TasksReader {
     return tasks.map(toTaskView)
   }
 
+  async searchByWords(words: string[], limit: number): Promise<TaskView[]> {
+    const tasks = await this.tasksRepository.findMatchingAnyWord(words, limit)
+    return tasks.map(toTaskView)
+  }
+
   async findDetail(id: number): Promise<TaskDetail | null> {
     const task = await this.tasksRepository.findById(id)
     if (!task) return null

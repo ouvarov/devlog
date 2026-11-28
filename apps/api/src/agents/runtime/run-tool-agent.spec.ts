@@ -47,7 +47,32 @@ const runScript = (script: MockScript) => {
     instructions: 'Test agent',
     prompt: 'Go',
     tools,
-    submitToolName: 'submit',
+    terminalToolNames: ['submit'],
+    maxSteps: MAX_STEPS,
+  })
+  return { model, run }
+}
+
+const toolsWithAsk = {
+  ...tools,
+  ask: tool({
+    description: 'Accepts only a non-empty question',
+    inputSchema: z.object({ question: z.string() }),
+    execute: ({ question }): SubmitResult<string> =>
+      question
+        ? { accepted: true, value: question }
+        : { accepted: false, errors: ['question must not be empty'] },
+  }),
+}
+
+const runScriptWithAsk = (script: MockScript) => {
+  const model = createScriptedModel(script)
+  const run = runToolAgent({
+    model,
+    instructions: 'Test agent',
+    prompt: 'Go',
+    tools: toolsWithAsk,
+    terminalToolNames: ['submit', 'ask'],
     maxSteps: MAX_STEPS,
   })
   return { model, run }
@@ -199,5 +224,62 @@ describe('runToolAgent', () => {
 
     expect(result).toMatchObject({ status: 'failed', failure: 'llm-error', stepCount: 0 })
     expect(result.trace).toEqual([])
+  })
+
+  describe('with several terminal tools', () => {
+    it('stops on an accepted call of any terminal tool and names that tool', async () => {
+      const { model, run } = runScriptWithAsk([
+        toolCallStep('lookup', {}),
+        toolCallStep('ask', { question: 'Which part first?' }),
+        toolCallStep('submit', { answer: 'ok' }),
+      ])
+
+      const result = await run
+
+      expect(result).toMatchObject({
+        status: 'submitted',
+        toolName: 'ask',
+        submission: 'Which part first?',
+        stepCount: 2,
+      })
+      expect(model.doGenerateCalls).toHaveLength(2)
+    })
+
+    it('picks the first terminal tool in the given order when one step has two accepted calls', async () => {
+      const askThenSubmit = toolCallStep('ask', { question: 'Which part first?' })
+      const { run } = runScriptWithAsk([
+        {
+          ...askThenSubmit,
+          content: [...askThenSubmit.content, ...toolCallStep('submit', { answer: 'ok' }).content],
+        },
+      ])
+
+      const result = await run
+
+      expect(result).toMatchObject({ status: 'submitted', toolName: 'submit', submission: 'ok' })
+    })
+
+    it('marks a rejected call of any terminal tool in the trace and goes on', async () => {
+      const { run } = runScriptWithAsk([
+        toolCallStep('ask', { question: '' }),
+        toolCallStep('submit', { answer: 'ok' }),
+      ])
+
+      const result = await run
+
+      expect(result).toMatchObject({ status: 'submitted', toolName: 'submit' })
+      expect(result.trace.map((step) => step.toolCalls[0]?.isRejectedSubmit)).toEqual([true, false])
+    })
+
+    it('offers every terminal tool, required, on the last allowed step', async () => {
+      const { model, run } = runScriptWithAsk([toolCallStep('lookup', {})])
+
+      const result = await run
+
+      const lastCall = model.doGenerateCalls[MAX_STEPS - 1]
+      expect(result).toMatchObject({ status: 'step-limit', stepCount: MAX_STEPS })
+      expect(lastCall?.tools?.map(({ name }) => name)).toEqual(['submit', 'ask'])
+      expect(lastCall?.toolChoice).toEqual({ type: 'required' })
+    })
   })
 })

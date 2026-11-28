@@ -11,7 +11,7 @@ import {
 import type { AgentTraceStep, AgentUsage } from '@devlog/shared'
 
 import { type LlmFailure, classifyLlmError } from './classify-llm-error.js'
-import { type AcceptedSubmit, isAcceptedSubmit } from './submit-result.js'
+import { isAcceptedSubmit } from './submit-result.js'
 import { toTrace } from './to-trace.js'
 
 const AGENT_TOTAL_TIMEOUT_MS = 25_000
@@ -22,12 +22,12 @@ type ToolAgentOptions<TOOLS extends ToolSet> = {
   instructions: string
   prompt: string
   tools: TOOLS
-  submitToolName: keyof TOOLS & string
+  terminalToolNames: readonly (keyof TOOLS & string)[]
   maxSteps: number
 }
 
 type ToolAgentOutcome =
-  | { status: 'submitted'; submission: unknown }
+  | { status: 'submitted'; toolName: string; submission: unknown }
   | { status: 'step-limit' }
   | { status: 'no-submit' }
   | { status: 'failed'; failure: LlmFailure; error: unknown }
@@ -39,16 +39,26 @@ type ToolAgentRun = ToolAgentOutcome & {
   durationMs: number
 }
 
-const findAcceptedSubmission = <TOOLS extends ToolSet>(
+type AcceptedTerminalCall = { toolName: string; value: unknown }
+
+// Parallel calls can finish in any order, so when one step has several accepted terminal
+// calls the order of terminalToolNames decides, not the order of the results.
+const findAcceptedTerminalCall = <TOOLS extends ToolSet>(
   step: StepResult<TOOLS> | undefined,
-  submitToolName: string,
-): AcceptedSubmit<unknown> | undefined => {
+  terminalToolNames: readonly string[],
+): AcceptedTerminalCall | undefined => {
   if (!step) return undefined
 
-  const submitOutputs = step.toolResults
-    .filter((toolResult) => toolResult.toolName === submitToolName)
-    .map((toolResult): unknown => toolResult.output)
-  return submitOutputs.find(isAcceptedSubmit)
+  const acceptedValues = new Map<string, unknown>()
+  for (const { toolName, output } of step.toolResults) {
+    const terminalOutput: unknown = output
+    if (!acceptedValues.has(toolName) && isAcceptedSubmit(terminalOutput)) {
+      acceptedValues.set(toolName, terminalOutput.value)
+    }
+  }
+
+  const toolName = terminalToolNames.find((name) => acceptedValues.has(name))
+  return toolName === undefined ? undefined : { toolName, value: acceptedValues.get(toolName) }
 }
 
 const sumUsage = <TOOLS extends ToolSet>(steps: readonly StepResult<TOOLS>[]): AgentUsage =>
@@ -63,20 +73,21 @@ const sumUsage = <TOOLS extends ToolSet>(steps: readonly StepResult<TOOLS>[]): A
 const runToolAgent = async <TOOLS extends ToolSet>(
   options: ToolAgentOptions<TOOLS>,
 ): Promise<ToolAgentRun> => {
-  const { model, instructions, prompt, tools, submitToolName, maxSteps } = options
+  const { model, instructions, prompt, tools, terminalToolNames, maxSteps } = options
+  const terminalToolNameSet: ReadonlySet<string> = new Set(terminalToolNames)
   const steps: StepResult<TOOLS>[] = []
   const startedAtMs = Date.now()
 
   const finish = (outcome: ToolAgentOutcome): ToolAgentRun => ({
     ...outcome,
-    trace: toTrace(steps, submitToolName),
+    trace: toTrace(steps, terminalToolNameSet),
     stepCount: steps.length,
     usage: sumUsage(steps),
     durationMs: Date.now() - startedAtMs,
   })
 
-  const isSubmitAccepted: StopCondition<TOOLS> = ({ steps: finishedSteps }) =>
-    findAcceptedSubmission(finishedSteps.at(-1), submitToolName) !== undefined
+  const isTerminalCallAccepted: StopCondition<TOOLS> = ({ steps: finishedSteps }) =>
+    findAcceptedTerminalCall(finishedSteps.at(-1), terminalToolNames) !== undefined
 
   try {
     await generateText({
@@ -84,10 +95,10 @@ const runToolAgent = async <TOOLS extends ToolSet>(
       instructions,
       prompt,
       tools,
-      stopWhen: [isStepCount(maxSteps), isSubmitAccepted],
+      stopWhen: [isStepCount(maxSteps), isTerminalCallAccepted],
       prepareStep: ({ stepNumber }) =>
         stepNumber === maxSteps - 1
-          ? { activeTools: [submitToolName], toolChoice: 'required' }
+          ? { activeTools: terminalToolNames, toolChoice: 'required' }
           : undefined,
       timeout: { totalMs: AGENT_TOTAL_TIMEOUT_MS },
       maxRetries: AGENT_MAX_RETRIES,
@@ -96,13 +107,15 @@ const runToolAgent = async <TOOLS extends ToolSet>(
       },
     })
   } catch (error) {
-    // Only the forced last step sets a tool choice: a violation means no submit within the limit.
+    // Only the forced last step sets a tool choice: a violation means no terminal call within the limit.
     if (ToolChoiceViolationError.isInstance(error)) return finish({ status: 'step-limit' })
     return finish({ status: 'failed', failure: classifyLlmError(error), error })
   }
 
-  const accepted = findAcceptedSubmission(steps.at(-1), submitToolName)
-  if (accepted) return finish({ status: 'submitted', submission: accepted.value })
+  const accepted = findAcceptedTerminalCall(steps.at(-1), terminalToolNames)
+  if (accepted) {
+    return finish({ status: 'submitted', toolName: accepted.toolName, submission: accepted.value })
+  }
 
   return finish({ status: steps.length >= maxSteps ? 'step-limit' : 'no-submit' })
 }

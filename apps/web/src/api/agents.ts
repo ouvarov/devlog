@@ -1,6 +1,9 @@
 import {
   type AgentsInfo,
   AgentsInfoSchema,
+  type DecomposeRequest,
+  type DecomposeResponse,
+  DecomposeResponseSchema,
   type PrioritizeResponse,
   PrioritizeResponseSchema,
 } from '@devlog/shared'
@@ -13,4 +16,14 @@ const getAgentsInfo = (signal?: AbortSignal): Promise<AgentsInfo> =>
 const runPrioritize = (): Promise<PrioritizeResponse> =>
   requestJson('/agents/prioritize', PrioritizeResponseSchema, { method: 'POST', ...jsonBody({}) })
 
-export { getAgentsInfo, runPrioritize }
+const runDecompose = (
+  request: DecomposeRequest,
+  signal?: AbortSignal,
+): Promise<DecomposeResponse> =>
+  requestJson('/agents/decompose', DecomposeResponseSchema, {
+    method: 'POST',
+    signal,
+    ...jsonBody(request),
+  })
+
+export { getAgentsInfo, runDecompose, runPrioritize }

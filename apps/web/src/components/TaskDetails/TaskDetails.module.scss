@@ -39,7 +39,8 @@
 }
 
 .actions,
-.meta {
+.meta,
+.subtaskActions {
   display: flex;
   gap: $indent-2;
   align-items: center;

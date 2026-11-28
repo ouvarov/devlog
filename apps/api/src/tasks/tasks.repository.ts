@@ -1,5 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { type SQL, and, asc, count, desc, eq, inArray, isNull, ne, sql } from 'drizzle-orm'
+import {
+  type SQL,
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  ne,
+  or,
+  sql,
+} from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 
 import {
@@ -13,6 +26,7 @@ import {
 import type { Database, DatabaseExecutor } from '../db/database.js'
 import { DRIZZLE } from '../db/db.tokens.js'
 import { tasks } from '../db/schema/index.js'
+import { toContainsPattern } from './like-pattern.js'
 
 const MAX_LIST_SIZE = 500
 const DONE_STATUS: TaskStatus = 'done'
@@ -72,6 +86,14 @@ const orderByFor = ({ sort, order }: Pick<ListTasksQuery, 'sort' | 'order'>): SQ
   return [direction(tasks.createdAt), direction(tasks.id)]
 }
 
+const matchesAnyWord = (words: string[]): SQL | undefined =>
+  or(
+    ...words.map((word) => {
+      const pattern = toContainsPattern(word)
+      return or(ilike(tasks.title, pattern), ilike(tasks.description, pattern))
+    }),
+  )
+
 const completedAtFor = (completion: TaskCompletionChange): SQL | null | undefined => {
   if (completion === 'complete') return sql`coalesce(${tasks.completedAt}, now())`
   if (completion === 'reopen') return null
@@ -105,6 +127,15 @@ export class TasksRepository {
         ),
       )
       .orderBy(desc(priorityRank), asc(tasks.createdAt), asc(tasks.id))
+      .limit(limit)
+  }
+
+  findMatchingAnyWord(words: string[], limit: number): Promise<TaskRecord[]> {
+    if (words.length === 0) return Promise.resolve([])
+
+    return this.selectTaskRecords(this.db)
+      .where(matchesAnyWord(words))
+      .orderBy(desc(tasks.createdAt), desc(tasks.id))
       .limit(limit)
   }
 

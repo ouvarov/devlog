@@ -1,4 +1,7 @@
 import {
+  type BatchTasks,
+  type BatchTasksResult,
+  BatchTasksResultSchema,
   type CreateTask,
   type TaskDetail,
   TaskDetailSchema,
@@ -36,10 +39,13 @@ const getTask = (id: number, signal?: AbortSignal): Promise<TaskDetail> =>
 const createTask = (input: CreateTask): Promise<TaskView> =>
   requestJson('/tasks', TaskViewSchema, { method: 'POST', ...jsonBody(input) })
 
+const createTasksBatch = (batch: BatchTasks): Promise<BatchTasksResult> =>
+  requestJson('/tasks/batch', BatchTasksResultSchema, { method: 'POST', ...jsonBody(batch) })
+
 const updateTask = ({ id, changes }: TaskChanges): Promise<TaskView> =>
   requestJson(`/tasks/${id}`, TaskViewSchema, { method: 'PATCH', ...jsonBody(changes) })
 
 const deleteTask = (id: number): Promise<void> => requestEmpty(`/tasks/${id}`, { method: 'DELETE' })
 
-export { createTask, deleteTask, getTask, listTasks, updateTask }
+export { createTask, createTasksBatch, deleteTask, getTask, listTasks, updateTask }
 export type { TaskChanges }

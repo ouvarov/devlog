@@ -13,9 +13,9 @@ const SOURCE_LABELS = {
 } satisfies Record<AgentSource, string>
 
 const STOP_REASON_LABELS = {
-  submitted: 'Plan submitted',
+  submitted: 'Answer submitted',
   'step-limit': 'Step limit reached',
-  error: 'Ended without a plan',
+  error: 'Ended without an answer',
   skipped: 'Skipped, nothing open',
 } satisfies Record<AgentStopReason, string>
 
