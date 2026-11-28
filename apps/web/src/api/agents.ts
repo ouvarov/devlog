@@ -16,7 +16,10 @@ const getAgentsInfo = (signal?: AbortSignal): Promise<AgentsInfo> =>
 const runPrioritize = (): Promise<PrioritizeResponse> =>
   requestJson('/agents/prioritize', PrioritizeResponseSchema, { method: 'POST', ...jsonBody({}) })
 
-const runDecompose = (request: DecomposeRequest, signal?: AbortSignal): Promise<DecomposeResponse> =>
+const runDecompose = (
+  request: DecomposeRequest,
+  signal?: AbortSignal,
+): Promise<DecomposeResponse> =>
   requestJson('/agents/decompose', DecomposeResponseSchema, {
     method: 'POST',
     signal,

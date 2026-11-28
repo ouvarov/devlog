@@ -44,7 +44,8 @@ const useDecompose = (taskId: number) => {
     }
   }
 
-  const start = (isSkippingQuestions: boolean) => void run(toStartRequest(taskId, isSkippingQuestions))
+  const start = (isSkippingQuestions: boolean) =>
+    void run(toStartRequest(taskId, isSkippingQuestions))
 
   const answer = (answers: string[]) => {
     if (state.phase !== 'clarify') return null
@@ -92,7 +93,16 @@ const useDecompose = (taskId: number) => {
 
   useEffect(() => () => sessionRef.current?.abort(), [])
 
-  return { state, start, answer, skipQuestions, retry, changeItem, create: () => void create(), reset }
+  return {
+    state,
+    start,
+    answer,
+    skipQuestions,
+    retry,
+    changeItem,
+    create: () => void create(),
+    reset,
+  }
 }
 
 export { useDecompose }

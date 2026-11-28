@@ -15,11 +15,7 @@ import type {
   ValidationResult,
 } from '@/types/decompose'
 
-import {
-  GENERIC_SUBMIT_MESSAGE,
-  type ValidationIssue,
-  getIssueMessage,
-} from './taskForm'
+import { GENERIC_SUBMIT_MESSAGE, type ValidationIssue, getIssueMessage } from './taskForm'
 
 const NOT_RETRYABLE_CODES: readonly ApiErrorCode[] = [
   'LLM_NOT_CONFIGURED',
