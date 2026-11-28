@@ -1,15 +1,17 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { invalidateTasks } from '@/api/invalidateTasks'
 import { createTasksBatch } from '@/api/tasks'
 
+const getCreateTasksBatchOptions = (queryClient: QueryClient) => ({
+  mutationFn: createTasksBatch,
+  onSuccess: () => invalidateTasks(queryClient),
+})
+
 const useCreateTasksBatch = () => {
   const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: createTasksBatch,
-    onSuccess: () => invalidateTasks(queryClient),
-  })
+  return useMutation(getCreateTasksBatchOptions(queryClient))
 }
 
-export { useCreateTasksBatch }
+export { getCreateTasksBatchOptions, useCreateTasksBatch }

@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, useReducer, useRef } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 
 import type { DecomposeRequest } from '@devlog/shared'
 
@@ -16,32 +16,25 @@ import {
   toStartRequest,
 } from '@/utils/decompose'
 import { IDLE_STATE, decomposeReducer } from '@/utils/decomposeState'
+import { createRunSession, settleUnlessAborted } from '@/utils/runSession'
 
 const useDecompose = (taskId: number) => {
   const [state, dispatch] = useReducer(decomposeReducer, IDLE_STATE)
   const queryClient = useQueryClient()
   const { mutateAsync: createTasks } = useCreateTasksBatch()
-  const sessionRef = useRef<AbortController | null>(null)
+  const [session] = useState(createRunSession)
 
-  const startSession = (): AbortSignal => {
-    sessionRef.current?.abort()
-    const session = new AbortController()
-    sessionRef.current = session
-    return session.signal
-  }
-
-  const run = async (request: DecomposeRequest) => {
-    const signal = startSession()
+  const run = (request: DecomposeRequest) => {
+    const signal = session.start()
     dispatch({ type: 'started', request, startedAt: Date.now() })
 
-    try {
-      const response = await runDecompose(request, signal)
-      if (!signal.aborted) dispatch({ type: 'answered', response })
-    } catch (error) {
-      if (signal.aborted) return
-      if (error instanceof Error) void invalidateAgentsIfNotConfigured(queryClient, error)
-      dispatch({ type: 'failed', error: getDecomposeErrorView(error) })
-    }
+    return settleUnlessAborted(signal, runDecompose(request, signal), {
+      onValue: (response) => dispatch({ type: 'answered', response }),
+      onError: (error) => {
+        if (error instanceof Error) void invalidateAgentsIfNotConfigured(queryClient, error)
+        dispatch({ type: 'failed', error: getDecomposeErrorView(error) })
+      },
+    })
   }
 
   const start = (isSkippingQuestions: boolean) =>
@@ -63,7 +56,7 @@ const useDecompose = (taskId: number) => {
   const changeItem = (key: number, changes: ProposalItemChanges) =>
     dispatch({ type: 'item-changed', key, changes })
 
-  const create = async () => {
+  const create = () => {
     if (state.phase !== 'proposal') return
     const batch = toBatchInput(taskId, state.items)
     if (!batch.success) {
@@ -72,25 +65,21 @@ const useDecompose = (taskId: number) => {
     }
 
     // A sent batch may already be written, so it is not aborted; closing only drops the answer.
-    const signal = startSession()
+    const signal = session.start()
+    const { items } = state
     dispatch({ type: 'create-started' })
-    try {
-      const result = await createTasks(batch.data)
-      if (!signal.aborted) dispatch({ type: 'created', createdCount: result.created.length })
-    } catch (error) {
-      if (!signal.aborted) {
-        dispatch({ type: 'create-failed', errors: getBatchErrors(error, state.items) })
-      }
-    }
+    return settleUnlessAborted(signal, createTasks(batch.data), {
+      onValue: (result) => dispatch({ type: 'created', createdCount: result.created.length }),
+      onError: (error) => dispatch({ type: 'create-failed', errors: getBatchErrors(error, items) }),
+    })
   }
 
   const reset = () => {
-    sessionRef.current?.abort()
-    sessionRef.current = null
+    session.close()
     dispatch({ type: 'reset' })
   }
 
-  useEffect(() => () => sessionRef.current?.abort(), [])
+  useEffect(() => () => session.close(), [session])
 
   return {
     state,
