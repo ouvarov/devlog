@@ -1,4 +1,4 @@
-import type { AgentMeta, AgentName, AgentsInfo, PlanFocusItem, TaskView } from '@devlog/shared'
+import type { AgentMeta, PlanFocusItem, TaskView } from '@devlog/shared'
 
 import { ApiRequestError } from '@/api/client'
 import { FALLBACK_REASON_MESSAGES } from '@/config/agentDisplay'
@@ -91,7 +91,4 @@ const resolveFocus = (focus: readonly PlanFocusItem[], refs: PlanTaskRefs): Reso
 const resolveLater = (later: readonly number[], refs: PlanTaskRefs): ResolvedLaterItem[] =>
   later.map((taskId) => ({ taskId, taskRef: refs.get(taskId) ?? LOADING_REF }))
 
-const getMaxSteps = (info: AgentsInfo | undefined, name: AgentName): number | null =>
-  info?.agents.find((agent) => agent.name === name)?.maxSteps ?? null
-
-export { getMaxSteps, getPlanBanner, getPlanTaskRefs, getUnlistedIds, resolveFocus, resolveLater }
+export { getPlanBanner, getPlanTaskRefs, getUnlistedIds, resolveFocus, resolveLater }

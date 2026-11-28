@@ -7,8 +7,8 @@ import { Dialog } from '@/components/Dialog/Dialog'
 import { useAgentsInfo } from '@/hooks/useAgentsInfo'
 import { useDecompose } from '@/hooks/useDecompose'
 import { useElapsedSeconds } from '@/hooks/useElapsedSeconds'
+import { getMaxSteps } from '@/utils/agents'
 import { isClosable } from '@/utils/decomposeState'
-import { getMaxSteps } from '@/utils/prioritizePlan'
 
 type DecomposeDialogProps = {
   taskId: number

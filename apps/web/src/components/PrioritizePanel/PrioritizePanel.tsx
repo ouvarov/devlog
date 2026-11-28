@@ -11,7 +11,7 @@ import { PrioritizeRunView } from '@/components/PrioritizeRunView/PrioritizeRunV
 import { useAgentsInfo } from '@/hooks/useAgentsInfo'
 import { useElapsedSeconds } from '@/hooks/useElapsedSeconds'
 import { usePrioritize } from '@/hooks/usePrioritize'
-import { getMaxSteps } from '@/utils/prioritizePlan'
+import { getMaxSteps } from '@/utils/agents'
 
 import styles from './PrioritizePanel.module.scss'
 
